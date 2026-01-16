@@ -1,11 +1,20 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Sparkles, Loader2 } from 'lucide-react';
 import type { PromptInputProps } from '@/types';
+import { useSlideDeckStore } from '@/store/useSlideDeckStore';
 
 export default function PromptInput({ onSubmit, isLoading }: PromptInputProps) {
   const [prompt, setPrompt] = useState('');
+  const appState = useSlideDeckStore((state) => state.appState);
+
+  // Clear prompt when returning to input state (after reset or closing modal)
+  useEffect(() => {
+    if (appState === 'input' && !isLoading) {
+      setPrompt('');
+    }
+  }, [appState, isLoading]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -15,63 +24,53 @@ export default function PromptInput({ onSubmit, isLoading }: PromptInputProps) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-blue-50 to-indigo-100 p-4">
-      <div className="w-full max-w-2xl">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-indigo-600 rounded-2xl mb-4">
-            <Sparkles className="w-8 h-8 text-white" />
-          </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            AI Slide Deck Builder
+    <div className="min-h-screen flex flex-col items-center justify-center bg-zinc-950 p-4">
+      <div className="w-full max-w-3xl">
+        <div className="text-center mb-12">
+          <h1 className="text-5xl font-bold text-white mb-4">
+            Dunedain AI Slides
           </h1>
-          <p className="text-lg text-gray-600">
-            Create professional presentations in seconds with AI
-          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="bg-white rounded-xl shadow-lg p-6">
-            <label
-              htmlFor="prompt"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              What would you like to create a presentation about?
-            </label>
+          <div className="relative">
             <textarea
               id="prompt"
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              placeholder="e.g., Build a presentation for an upcoming 4 vehicle convoy from Austin, TX to Fort Hood, TX."
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none transition-all"
-              rows={4}
+              placeholder="Enter your presentation topic and requirements..."
+              className="w-full px-6 py-4 bg-zinc-800 border border-zinc-700 rounded-2xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-zinc-600 focus:border-zinc-600 resize-none transition-all"
+              rows={3}
               disabled={isLoading}
             />
+            <div className="absolute right-4 bottom-4 flex items-center gap-2">
+              <button
+                type="button"
+                className="p-2 text-gray-400 hover:text-gray-300 transition-colors"
+                title="Voice input"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                </svg>
+              </button>
+              <button
+                type="submit"
+                disabled={!prompt.trim() || isLoading}
+                className="p-2 bg-gray-700 hover:bg-gray-600 disabled:bg-gray-800 disabled:cursor-not-allowed rounded-lg transition-colors"
+                title="Generate slides"
+              >
+                {isLoading ? (
+                  <Loader2 className="w-5 h-5 text-gray-400 animate-spin" />
+                ) : (
+                  <svg className="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                  </svg>
+                )}
+              </button>
+            </div>
           </div>
 
-          <button
-            type="submit"
-            disabled={!prompt.trim() || isLoading}
-            className="w-full bg-indigo-600 text-white py-4 px-6 rounded-xl font-semibold text-lg hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="w-5 h-5 animate-spin" />
-                Generating your slides...
-              </>
-            ) : (
-              <>
-                <Sparkles className="w-5 h-5" />
-                Generate Slides
-              </>
-            )}
-          </button>
         </form>
-
-        <div className="mt-8 text-center">
-          <p className="text-sm text-gray-500">
-            Powered by GPT-4o • Your presentation will be ready in moments
-          </p>
-        </div>
       </div>
     </div>
   );

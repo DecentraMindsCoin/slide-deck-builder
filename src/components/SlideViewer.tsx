@@ -92,23 +92,25 @@ export default function SlideViewer({
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-900 to-slate-800 flex flex-col">
-      <header className="bg-slate-800/50 backdrop-blur-sm border-b border-slate-700 px-6 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+    <div className="h-full flex flex-col">
+      {/* Fixed Header */}
+      <header className="bg-zinc-900 border-b border-zinc-800 px-6 py-4 flex-shrink-0">
+        <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-white">{deckTitle}</h1>
           <button
             onClick={onReset}
-            className="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg transition-colors"
           >
-            <Home className="w-4 h-4" />
-            New Deck
+            <X className="w-4 h-4" />
+            Close
           </button>
         </div>
       </header>
 
-      <div className="flex-1 flex items-center justify-center p-8">
-        <div className="w-full max-w-5xl">
-          <div className="bg-white rounded-2xl shadow-2xl p-12 min-h-[500px] flex flex-col">
+      {/* Scrollable Content */}
+      <div className="flex-1 overflow-y-auto p-8">
+        <div className="w-full max-w-5xl mx-auto h-full flex items-center">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl p-12 w-full min-h-[500px] flex flex-col">
             <div className="mb-8">
               {isEditingTitle ? (
                 <div className="flex items-center gap-2">
@@ -116,30 +118,30 @@ export default function SlideViewer({
                     type="text"
                     value={editedTitle}
                     onChange={(e) => setEditedTitle(e.target.value)}
-                    className="flex-1 text-4xl font-bold text-gray-900 border-b-2 border-indigo-500 focus:outline-none"
+                    className="flex-1 text-4xl font-bold text-white bg-transparent border-b-2 border-zinc-600 focus:border-zinc-500 focus:outline-none"
                     autoFocus
                   />
                   <button
                     onClick={saveTitle}
-                    className="p-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
+                    className="p-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
                   >
                     <Check className="w-5 h-5" />
                   </button>
                   <button
                     onClick={cancelTitleEdit}
-                    className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                    className="p-2 bg-zinc-700 text-white rounded-lg hover:bg-zinc-600"
                   >
                     <X className="w-5 h-5" />
                   </button>
                 </div>
               ) : (
                 <div className="flex items-center gap-3">
-                  <h2 className="text-4xl font-bold text-gray-900">
+                  <h2 className="text-4xl font-bold text-white">
                     {currentSlide.title}
                   </h2>
                   <button
                     onClick={startEditingTitle}
-                    className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                    className="p-2 text-zinc-400 hover:text-zinc-300 hover:bg-zinc-800 rounded-lg transition-colors"
                   >
                     <Edit2 className="w-5 h-5" />
                   </button>
@@ -153,17 +155,17 @@ export default function SlideViewer({
                   {editedContent.map((item, index) => (
                     <div key={index} className="flex items-start gap-2">
                       {item.type === 'bullet' && (
-                        <span className="text-indigo-600 mt-2">•</span>
+                        <span className="text-zinc-400 mt-2">•</span>
                       )}
                       <textarea
                         value={item.text}
                         onChange={(e) => updateContentItem(index, e.target.value)}
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
+                        className="flex-1 px-3 py-2 bg-zinc-800 border border-zinc-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-zinc-600 focus:border-zinc-600 resize-none"
                         rows={2}
                       />
                       <button
                         onClick={() => removeContentItem(index)}
-                        className="p-2 text-red-500 hover:bg-red-50 rounded-lg"
+                        className="p-2 text-zinc-400 hover:text-red-400 hover:bg-zinc-800 rounded-lg"
                       >
                         <X className="w-4 h-4" />
                       </button>
@@ -172,13 +174,13 @@ export default function SlideViewer({
                   <div className="flex gap-2 mt-4">
                     <button
                       onClick={() => addContentItem('bullet')}
-                      className="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded text-sm"
+                      className="px-3 py-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded text-sm"
                     >
                       + Bullet
                     </button>
                     <button
                       onClick={() => addContentItem('paragraph')}
-                      className="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded text-sm"
+                      className="px-3 py-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded text-sm"
                     >
                       + Paragraph
                     </button>
@@ -186,14 +188,14 @@ export default function SlideViewer({
                   <div className="flex gap-2 mt-6">
                     <button
                       onClick={saveContent}
-                      className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 flex items-center gap-2"
+                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2"
                     >
                       <Check className="w-4 h-4" />
                       Save Changes
                     </button>
                     <button
                       onClick={cancelContentEdit}
-                      className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 flex items-center gap-2"
+                      className="px-4 py-2 bg-zinc-700 text-white rounded-lg hover:bg-zinc-600 flex items-center gap-2"
                     >
                       <X className="w-4 h-4" />
                       Cancel
@@ -206,11 +208,11 @@ export default function SlideViewer({
                     <div key={index}>
                       {item.type === 'bullet' ? (
                         <div className="flex items-start gap-3">
-                          <span className="text-indigo-600 text-2xl mt-1">•</span>
-                          <p className="text-xl text-gray-700 flex-1">{item.text}</p>
+                          <span className="text-zinc-400 text-2xl mt-1">•</span>
+                          <p className="text-xl text-zinc-300 flex-1">{item.text}</p>
                         </div>
                       ) : (
-                        <p className="text-xl text-gray-700 leading-relaxed">
+                        <p className="text-xl text-zinc-300 leading-relaxed">
                           {item.text}
                         </p>
                       )}
@@ -218,7 +220,7 @@ export default function SlideViewer({
                   ))}
                   <button
                     onClick={startEditingContent}
-                    className="mt-6 flex items-center gap-2 px-4 py-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                    className="mt-6 flex items-center gap-2 px-4 py-2 text-zinc-400 hover:text-zinc-300 hover:bg-zinc-800 rounded-lg transition-colors"
                   >
                     <Edit2 className="w-4 h-4" />
                     Edit Content
@@ -227,36 +229,40 @@ export default function SlideViewer({
               )}
             </div>
           </div>
+        </div>
+      </div>
 
-          <div className="mt-8 flex items-center justify-between">
-            <button
-              onClick={handlePrevious}
-              disabled={currentIndex === 0}
-              className="flex items-center gap-2 px-6 py-3 bg-white text-gray-900 rounded-xl font-semibold hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg"
-            >
-              <ChevronLeft className="w-5 h-5" />
-              Previous
-            </button>
+      {/* Fixed Footer */}
+      <footer className="bg-zinc-900 border-t border-zinc-800 px-6 py-4 flex-shrink-0">
+        <div className="max-w-5xl mx-auto flex items-center justify-between">
+          <button
+            onClick={handlePrevious}
+            disabled={currentIndex === 0}
+            className="flex items-center gap-2 px-6 py-3 bg-zinc-800 text-white rounded-xl font-semibold hover:bg-zinc-700 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+          >
+            <ChevronLeft className="w-5 h-5" />
+            Previous
+          </button>
 
+          <div className="flex flex-col items-center gap-1">
             <div className="text-white text-lg font-semibold">
               {currentIndex + 1} of {slides.length}
             </div>
-
-            <button
-              onClick={handleNext}
-              disabled={currentIndex === slides.length - 1}
-              className="flex items-center gap-2 px-6 py-3 bg-white text-gray-900 rounded-xl font-semibold hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg"
-            >
-              Next
-              <ChevronRight className="w-5 h-5" />
-            </button>
+            <div className="text-zinc-400 text-xs">
+              Use arrow keys to navigate
+            </div>
           </div>
 
-          <div className="mt-4 text-center text-gray-400 text-sm">
-            Use arrow keys to navigate • Click edit icons to modify content
-          </div>
+          <button
+            onClick={handleNext}
+            disabled={currentIndex === slides.length - 1}
+            className="flex items-center gap-2 px-6 py-3 bg-zinc-800 text-white rounded-xl font-semibold hover:bg-zinc-700 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+          >
+            Next
+            <ChevronRight className="w-5 h-5" />
+          </button>
         </div>
-      </div>
+      </footer>
     </div>
   );
 }
