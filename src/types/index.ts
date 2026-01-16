@@ -63,6 +63,8 @@ export interface SlideViewerProps {
   slides: Slide[];
   onUpdateSlide: (slideId: string, title: string, content: SlideContent[]) => void;
   onReset: () => void;
+  currentSlideIndex?: number;
+  onSlideChange?: (index: number) => void;
 }
 
 export interface ErrorDisplayProps {

@@ -1,37 +1,45 @@
 'use client';
 
-import { FileText, Trash2, ChevronLeft } from 'lucide-react';
+import { useState } from 'react';
+import { FileText, Trash2 } from 'lucide-react';
+import Panel from '@/components/shared/Panel';
+import ConfirmModal from '@/components/shared/ConfirmModal';
 import { useSlideDeckStore } from '@/store/useSlideDeckStore';
 import { useUIStore } from '@/store/useUIStore';
 import { formatRelativeTime, truncate } from '@/lib/utils';
 
 export default function HistoryPanel() {
-  const isOpen = useUIStore((state) => state.isHistoryPanelOpen);
-  const toggleHistoryPanel = useUIStore((state) => state.toggleHistoryPanel);
+  const [deleteConfirm, setDeleteConfirm] = useState<{ id: string; title: string } | null>(null);
+  const activePanel = useUIStore((state) => state.activePanel);
+  const togglePanel = useUIStore((state) => state.togglePanel);
+  const isOpen = activePanel === 'history';
   const history = useSlideDeckStore((state) => state.history);
   const currentDeckId = useSlideDeckStore((state) => state.currentDeckId);
   const loadDeckFromHistory = useSlideDeckStore((state) => state.loadDeckFromHistory);
   const deleteDeckFromHistory = useSlideDeckStore((state) => state.deleteDeckFromHistory);
 
-  if (!isOpen) return null;
+  const handleDeleteClick = (e: React.MouseEvent, id: string, title: string) => {
+    e.stopPropagation();
+    setDeleteConfirm({ id, title });
+  };
+
+  const handleConfirmDelete = () => {
+    if (deleteConfirm) {
+      deleteDeckFromHistory(deleteConfirm.id);
+      setDeleteConfirm(null);
+    }
+  };
 
   return (
-    <>
-      {/* History Panel */}
-      <div className={`fixed left-16 top-0 h-full bg-zinc-900 border-r border-zinc-800 transition-all duration-300 z-20 ${isOpen ? 'slide-in-from-left' : 'slide-out-to-left'} duration-300`}>
-        {/* Toggle Button - Right Edge */}
-        <button
-          onClick={toggleHistoryPanel}
-          className="absolute -right-10 top-4 p-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-colors z-30"
-          title="Close History"
-        >
-          <ChevronLeft className="w-5 h-5 text-zinc-400" />
-        </button>
-        <div className="p-4 h-full flex flex-col overflow-hidden">
-          <h2 className="text-white text-lg font-semibold mb-4">Generation History</h2>
-
-          {/* History List */}
-          <div className="flex-1 overflow-y-auto space-y-2 pr-2">
+    <Panel
+      panelType="history"
+      isOpen={isOpen}
+      onClose={() => togglePanel('history')}
+      title="Generation History"
+      width="md"
+    >
+      {/* History List */}
+      <div className="flex-1 overflow-y-auto space-y-2 p-4">
             {history.length === 0 ? (
               <div className="text-zinc-500 text-sm text-center py-8">
                 No decks generated yet
@@ -65,10 +73,7 @@ export default function HistoryPanel() {
                       </div>
                     </div>
                     <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        deleteDeckFromHistory(item.id);
-                      }}
+                      onClick={(e) => handleDeleteClick(e, item.id, item.deck.deckTitle)}
                       className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-600/20 rounded transition-all"
                       title="Delete"
                     >
@@ -78,9 +83,20 @@ export default function HistoryPanel() {
                 </div>
               ))
             )}
-          </div>
-        </div>
       </div>
-    </>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={deleteConfirm !== null}
+        onClose={() => setDeleteConfirm(null)}
+        onConfirm={handleConfirmDelete}
+        title="Delete Slide Deck"
+        message={`Are you sure you want to delete "${deleteConfirm?.title}"? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+        activePanel={activePanel}
+      />
+    </Panel>
   );
 }

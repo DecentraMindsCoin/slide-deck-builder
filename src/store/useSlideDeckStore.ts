@@ -16,11 +16,13 @@ interface SlideDeckState {
   error: string;
   history: DeckHistoryItem[];
   currentDeckId: string | null;
+  currentSlideIndex: number;
   
   // Actions
   setAppState: (state: AppState) => void;
   setSlideDeck: (deck: SlideDeck | null) => void;
   setError: (error: string) => void;
+  setCurrentSlideIndex: (index: number) => void;
   updateSlide: (slideId: string, title: string, content: SlideContent[]) => void;
   addToHistory: (deck: SlideDeck, prompt: string) => void;
   loadDeckFromHistory: (id: string) => void;
@@ -38,6 +40,7 @@ export const useSlideDeckStore = create<SlideDeckState>()(
         error: '',
         history: [],
         currentDeckId: null,
+        currentSlideIndex: 0,
 
         // Actions
         setAppState: (appState) => set({ appState }, false, 'setAppState'),
@@ -45,6 +48,8 @@ export const useSlideDeckStore = create<SlideDeckState>()(
         setSlideDeck: (slideDeck) => set({ slideDeck }, false, 'setSlideDeck'),
         
         setError: (error) => set({ error }, false, 'setError'),
+        
+        setCurrentSlideIndex: (currentSlideIndex) => set({ currentSlideIndex }, false, 'setCurrentSlideIndex'),
         
         addToHistory: (deck, prompt) =>
           set(
@@ -126,7 +131,7 @@ export const useSlideDeckStore = create<SlideDeckState>()(
       
         reset: () =>
           set(
-            { appState: 'input', slideDeck: null, error: '', currentDeckId: null },
+            { appState: 'input', slideDeck: null, error: '', currentDeckId: null, currentSlideIndex: 0 },
             false,
             'reset'
           ),

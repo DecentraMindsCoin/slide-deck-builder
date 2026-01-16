@@ -10,8 +10,14 @@ export default function SlideViewer({
   slides,
   onUpdateSlide,
   onReset,
+  currentSlideIndex,
+  onSlideChange,
 }: SlideViewerProps) {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [internalIndex, setInternalIndex] = useState(0);
+  
+  // Use external index if provided, otherwise use internal
+  const currentIndex = currentSlideIndex !== undefined ? currentSlideIndex : internalIndex;
+  const setCurrentIndex = onSlideChange || setInternalIndex;
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [isEditingContent, setIsEditingContent] = useState(false);
   const [editedTitle, setEditedTitle] = useState('');
@@ -45,6 +51,13 @@ export default function SlideViewer({
       setCurrentIndex(currentIndex - 1);
     }
   };
+
+  // Sync internal index with external when it changes
+  useEffect(() => {
+    if (currentSlideIndex !== undefined) {
+      setInternalIndex(currentSlideIndex);
+    }
+  }, [currentSlideIndex]);
 
   const startEditingTitle = () => {
     setEditedTitle(currentSlide.title);
@@ -98,9 +111,9 @@ export default function SlideViewer({
       <header className="bg-zinc-900 border-b border-zinc-800 px-6 py-4 shrink-0">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-white">{deckTitle}</h1>
-          <Button onClick={onReset} variant="ghost" icon={<X className="w-4 h-4" />}>
+          {/* <Button onClick={onReset} variant="ghost" icon={<X className="w-4 h-4" />}>
             Close
-          </Button>
+          </Button> */}
         </div>
       </header>
 

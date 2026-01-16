@@ -2,6 +2,8 @@
 
 import { useEffect } from 'react';
 import { X } from 'lucide-react';
+import Button from '@/components/shared/Button';
+import type { PanelType } from '@/store/useUIStore';
 
 interface ModalProps {
   children: React.ReactNode;
@@ -9,6 +11,8 @@ interface ModalProps {
   onClose: () => void;
   title?: string;
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
+  activePanel?: PanelType;
+  height?: 'full' | 'auto';
 }
 
 const maxWidthClasses = {
@@ -25,6 +29,8 @@ export default function Modal({
   onClose,
   title,
   maxWidth = 'xl',
+  activePanel = null,
+  height = 'full',
 }: ModalProps) {
   // Prevent body scroll when modal is open
   useEffect(() => {
@@ -51,42 +57,49 @@ export default function Modal({
 
   if (!isOpen) return null;
 
+  // Calculate modal positioning based on active panel
+  const modalLeftClass = activePanel ? 'left-96' : 'left-16';
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center py-[5vh] px-4">
-      {/* Backdrop */}
+    <div 
+      className={`fixed inset-0 z-40 flex items-center justify-center py-[5vh] px-4 sm:px-12 transition-all duration-300 ${modalLeftClass}`}
+    >
+      {/* Backdrop - Covers full screen */}
       <div
         className="absolute inset-0 bg-black/70 backdrop-blur-sm"
         onClick={onClose}
+        style={{ left: 0 }}
       />
 
       {/* Modal Content */}
       <div
-        className={`relative bg-zinc-900 rounded-lg shadow-2xl border border-zinc-800 ${maxWidthClasses[maxWidth]} w-full h-[90vh] flex flex-col`}
+        className={`relative bg-zinc-900 rounded-lg shadow-2xl border border-zinc-800 ${maxWidthClasses[maxWidth]} w-full ${
+          height === 'full' ? 'h-[90vh]' : 'max-h-[90vh]'
+        } flex flex-col`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         {title && (
           <div className="flex items-center justify-between p-6 border-b border-zinc-800">
             <h2 className="text-2xl font-bold text-white">{title}</h2>
-            <button
+            <Button
               onClick={onClose}
-              className="p-2 text-zinc-400 hover:text-zinc-300 hover:bg-zinc-800 rounded-lg transition-colors"
+              variant="icon"
+              icon={<X className="w-5 h-5" />}
               aria-label="Close modal"
-            >
-              <X className="w-5 h-5" />
-            </button>
+            />
           </div>
         )}
 
         {/* Close button (when no title) */}
         {!title && (
-          <button
+          <Button
             onClick={onClose}
-            className="absolute top-4 right-4 p-2 text-zinc-400 hover:text-zinc-300 hover:bg-zinc-800 rounded-lg transition-colors z-10"
+            variant="icon"
+            icon={<X className="w-5 h-5" />}
+            className="absolute top-4 right-4 z-10"
             aria-label="Close modal"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          />
         )}
 
         {/* Body */}

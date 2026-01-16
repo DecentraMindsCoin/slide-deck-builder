@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Sidebar from '@/components/Sidebar';
 import HistoryPanel from '@/components/HistoryPanel';
+import EditorPanel from '@/components/EditorPanel';
 import PromptInput from '@/components/PromptInput';
 import SlideDeckModal from '@/components/SlideDeckModal';
 import ErrorDisplay from '@/components/ErrorDisplay';
@@ -15,7 +16,7 @@ export default function Home() {
   const [currentPrompt, setCurrentPrompt] = useState('');
   
   // UI state
-  const isHistoryPanelOpen = useUIStore((state) => state.isHistoryPanelOpen);
+  const activePanel = useUIStore((state) => state.activePanel);
   
   // Zustand store
   const appState = useSlideDeckStore((state) => state.appState);
@@ -69,10 +70,13 @@ export default function Home() {
       {/* History Panel */}
       <HistoryPanel />
 
+      {/* Editor Panel */}
+      <EditorPanel />
+
       {/* Main Content Area */}
       <div
-        className={`flex-1 flex flex-col transition-all duration-300 ml-16 ${
-          isHistoryPanelOpen ? 'pl-80' : 'pl-0'
+        className={`flex-1 flex flex-col transition-all duration-300 ${
+          activePanel ? 'ml-96' : 'ml-16'
         }`}
       >
         {/* Main Chat Page - Always Visible */}
