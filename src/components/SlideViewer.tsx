@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Edit2, Check, X, Home } from 'lucide-react';
+import Button from '@/components/shared/Button';
 import type { Slide, SlideContent, SlideViewerProps } from '@/types';
 
 export default function SlideViewer({
@@ -94,16 +95,12 @@ export default function SlideViewer({
   return (
     <div className="h-full flex flex-col">
       {/* Fixed Header */}
-      <header className="bg-zinc-900 border-b border-zinc-800 px-6 py-4 flex-shrink-0">
+      <header className="bg-zinc-900 border-b border-zinc-800 px-6 py-4 shrink-0">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-white">{deckTitle}</h1>
-          <button
-            onClick={onReset}
-            className="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg transition-colors"
-          >
-            <X className="w-4 h-4" />
+          <Button onClick={onReset} variant="ghost" icon={<X className="w-4 h-4" />}>
             Close
-          </button>
+          </Button>
         </div>
       </header>
 
@@ -121,30 +118,21 @@ export default function SlideViewer({
                     className="flex-1 text-4xl font-bold text-white bg-transparent border-b-2 border-zinc-600 focus:border-zinc-500 focus:outline-none"
                     autoFocus
                   />
-                  <button
-                    onClick={saveTitle}
-                    className="p-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-                  >
+                  <Button onClick={saveTitle} size="sm" variant="primary" className="bg-green-600 hover:bg-green-700">
                     <Check className="w-5 h-5" />
-                  </button>
-                  <button
-                    onClick={cancelTitleEdit}
-                    className="p-2 bg-zinc-700 text-white rounded-lg hover:bg-zinc-600"
-                  >
+                  </Button>
+                  <Button onClick={cancelTitleEdit} size="sm" variant="secondary">
                     <X className="w-5 h-5" />
-                  </button>
+                  </Button>
                 </div>
               ) : (
                 <div className="flex items-center gap-3">
                   <h2 className="text-4xl font-bold text-white">
                     {currentSlide.title}
                   </h2>
-                  <button
-                    onClick={startEditingTitle}
-                    className="p-2 text-zinc-400 hover:text-zinc-300 hover:bg-zinc-800 rounded-lg transition-colors"
-                  >
+                  <Button onClick={startEditingTitle} variant="ghost" size="sm">
                     <Edit2 className="w-5 h-5" />
-                  </button>
+                  </Button>
                 </div>
               )}
             </div>
@@ -163,43 +151,40 @@ export default function SlideViewer({
                         className="flex-1 px-3 py-2 bg-zinc-800 border border-zinc-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-zinc-600 focus:border-zinc-600 resize-none"
                         rows={2}
                       />
-                      <button
+                      <Button
                         onClick={() => removeContentItem(index)}
-                        className="p-2 text-zinc-400 hover:text-red-400 hover:bg-zinc-800 rounded-lg"
+                        variant="ghost"
+                        size="sm"
+                        className="text-zinc-400 hover:text-red-400"
                       >
                         <X className="w-4 h-4" />
-                      </button>
+                      </Button>
                     </div>
                   ))}
                   <div className="flex gap-2 mt-4">
-                    <button
-                      onClick={() => addContentItem('bullet')}
-                      className="px-3 py-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded text-sm"
-                    >
+                    <Button onClick={() => addContentItem('bullet')} variant="secondary" size="sm">
                       + Bullet
-                    </button>
-                    <button
-                      onClick={() => addContentItem('paragraph')}
-                      className="px-3 py-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded text-sm"
-                    >
+                    </Button>
+                    <Button onClick={() => addContentItem('paragraph')} variant="secondary" size="sm">
                       + Paragraph
-                    </button>
+                    </Button>
                   </div>
                   <div className="flex gap-2 mt-6">
-                    <button
+                    <Button
                       onClick={saveContent}
-                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2"
+                      variant="primary"
+                      icon={<Check className="w-4 h-4" />}
+                      className="bg-green-600 hover:bg-green-700"
                     >
-                      <Check className="w-4 h-4" />
                       Save Changes
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       onClick={cancelContentEdit}
-                      className="px-4 py-2 bg-zinc-700 text-white rounded-lg hover:bg-zinc-600 flex items-center gap-2"
+                      variant="secondary"
+                      icon={<X className="w-4 h-4" />}
                     >
-                      <X className="w-4 h-4" />
                       Cancel
-                    </button>
+                    </Button>
                   </div>
                 </div>
               ) : (
@@ -218,13 +203,14 @@ export default function SlideViewer({
                       )}
                     </div>
                   ))}
-                  <button
+                  <Button
                     onClick={startEditingContent}
-                    className="mt-6 flex items-center gap-2 px-4 py-2 text-zinc-400 hover:text-zinc-300 hover:bg-zinc-800 rounded-lg transition-colors"
+                    variant="ghost"
+                    icon={<Edit2 className="w-4 h-4" />}
+                    className="mt-6"
                   >
-                    <Edit2 className="w-4 h-4" />
                     Edit Content
-                  </button>
+                  </Button>
                 </div>
               )}
             </div>
@@ -233,16 +219,18 @@ export default function SlideViewer({
       </div>
 
       {/* Fixed Footer */}
-      <footer className="bg-zinc-900 border-t border-zinc-800 px-6 py-4 flex-shrink-0">
+      <footer className="bg-zinc-900 border-t border-zinc-800 px-6 py-4 shrink-0">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <button
+          <Button
             onClick={handlePrevious}
             disabled={currentIndex === 0}
-            className="flex items-center gap-2 px-6 py-3 bg-zinc-800 text-white rounded-xl font-semibold hover:bg-zinc-700 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+            variant="secondary"
+            size="lg"
+            icon={<ChevronLeft className="w-5 h-5" />}
+            className="rounded-xl"
           >
-            <ChevronLeft className="w-5 h-5" />
             Previous
-          </button>
+          </Button>
 
           <div className="flex flex-col items-center gap-1">
             <div className="text-white text-lg font-semibold">
@@ -253,14 +241,16 @@ export default function SlideViewer({
             </div>
           </div>
 
-          <button
+          <Button
             onClick={handleNext}
             disabled={currentIndex === slides.length - 1}
-            className="flex items-center gap-2 px-6 py-3 bg-zinc-800 text-white rounded-xl font-semibold hover:bg-zinc-700 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+            variant="secondary"
+            size="lg"
+            icon={<ChevronRight className="w-5 h-5" />}
+            className="rounded-xl flex-row-reverse"
           >
             Next
-            <ChevronRight className="w-5 h-5" />
-          </button>
+          </Button>
         </div>
       </footer>
     </div>

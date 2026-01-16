@@ -71,8 +71,8 @@ export default function Home() {
 
       {/* Main Content Area */}
       <div
-        className={`flex-1 flex flex-col transition-all duration-300 ${
-          isHistoryPanelOpen ? 'ml-80' : 'ml-0'
+        className={`flex-1 flex flex-col transition-all duration-300 ml-16 ${
+          isHistoryPanelOpen ? 'pl-80' : 'pl-0'
         }`}
       >
         {/* Main Chat Page - Always Visible */}

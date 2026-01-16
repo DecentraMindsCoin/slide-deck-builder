@@ -1,13 +1,14 @@
 'use client';
 
 import { AlertCircle, RefreshCw } from 'lucide-react';
+import Button from '@/components/shared/Button';
 import type { ErrorDisplayProps } from '@/types';
 
 export default function ErrorDisplay({ error, onRetry }: ErrorDisplayProps) {
   return (
     <div className="bg-red-900/20 border border-red-800 rounded-xl shadow-lg p-6 max-w-md">
       <div className="flex items-start gap-4">
-        <div className="flex-shrink-0">
+        <div className="shrink-0">
           <AlertCircle className="w-6 h-6 text-red-400" />
         </div>
         <div className="flex-1">
@@ -15,13 +16,14 @@ export default function ErrorDisplay({ error, onRetry }: ErrorDisplayProps) {
             Error
           </h3>
           <p className="text-gray-300 text-sm mb-4">{error}</p>
-          <button
+          <Button
             onClick={onRetry}
-            className="w-full bg-red-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-red-700 transition-all flex items-center justify-center gap-2"
+            variant="danger"
+            fullWidth
+            icon={<RefreshCw className="w-4 h-4" />}
           >
-            <RefreshCw className="w-4 h-4" />
             Try Again
-          </button>
+          </Button>
         </div>
       </div>
     </div>

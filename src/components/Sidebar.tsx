@@ -11,7 +11,7 @@ export default function Sidebar() {
   const toggleHistoryPanel = useUIStore((state) => state.toggleHistoryPanel);
 
   return (
-    <aside className="w-16 bg-zinc-900 border-r border-zinc-800 flex flex-col items-center py-4 space-y-2">
+    <aside className="fixed left-0 top-0 h-screen w-16 bg-zinc-900 border-r border-zinc-800 flex flex-col items-center py-4 space-y-2 z-10">
       {/* Logo */}
       <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center mb-4">
         <Sparkles className="w-6 h-6 text-black" />
