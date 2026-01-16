@@ -1,78 +1,76 @@
 'use client';
 
-import { useState } from 'react';
 import PromptInput from '@/components/PromptInput';
-import SlideViewer from '@/components/SlideViewer';
+import SlideDeckModal from '@/components/SlideDeckModal';
 import ErrorDisplay from '@/components/ErrorDisplay';
 import { generateSlides } from '@/services/api';
-import type { SlideDeck, SlideContent, AppState } from '@/types';
+import { useSlideDeckStore } from '@/store/useSlideDeckStore';
+import type { SlideContent } from '@/types';
 
 export default function Home() {
-  const [state, setState] = useState<AppState>('input');
-  const [slideDeck, setSlideDeck] = useState<SlideDeck | null>(null);
-  const [error, setError] = useState<string>('');
+  // Zustand store
+  const appState = useSlideDeckStore((state) => state.appState);
+  const slideDeck = useSlideDeckStore((state) => state.slideDeck);
+  const error = useSlideDeckStore((state) => state.error);
+  const setAppState = useSlideDeckStore((state) => state.setAppState);
+  const setSlideDeck = useSlideDeckStore((state) => state.setSlideDeck);
+  const setError = useSlideDeckStore((state) => state.setError);
+  const updateSlide = useSlideDeckStore((state) => state.updateSlide);
+  const reset = useSlideDeckStore((state) => state.reset);
 
   const handlePromptSubmit = async (prompt: string) => {
-    setState('loading');
+    setAppState('loading');
     setError('');
 
     try {
       const response = await generateSlides(prompt);
       if (response.success && response.data) {
         setSlideDeck(response.data);
-        setState('viewing');
+        setAppState('viewing');
       } else {
         throw new Error('Failed to generate slides');
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An unexpected error occurred');
-      setState('error');
+      setAppState('error');
     }
   };
 
   const handleUpdateSlide = (slideId: string, title: string, content: SlideContent[]) => {
-    if (!slideDeck) return;
-
-    const updatedSlides = slideDeck.slides.map((slide) =>
-      slide.id === slideId ? { ...slide, title, content } : slide
-    );
-
-    setSlideDeck({
-      ...slideDeck,
-      slides: updatedSlides,
-    });
+    updateSlide(slideId, title, content);
   };
 
-  const handleReset = () => {
-    setState('input');
-    setSlideDeck(null);
-    setError('');
+  const handleCloseModal = () => {
+    setAppState('input');
   };
 
   const handleRetry = () => {
-    setState('input');
+    setAppState('input');
     setError('');
   };
 
-  if (state === 'error') {
-    return <ErrorDisplay error={error} onRetry={handleRetry} />;
-  }
-
-  if (state === 'viewing' && slideDeck) {
-    return (
-      <SlideViewer
-        deckTitle={slideDeck.deckTitle}
-        slides={slideDeck.slides}
-        onUpdateSlide={handleUpdateSlide}
-        onReset={handleReset}
-      />
-    );
-  }
-
   return (
-    <PromptInput
-      onSubmit={handlePromptSubmit}
-      isLoading={state === 'loading'}
-    />
+    <>
+      {/* Main Chat Page - Always Visible */}
+      <PromptInput
+        onSubmit={handlePromptSubmit}
+        isLoading={appState === 'loading'}
+      />
+
+      {/* Error Display */}
+      {appState === 'error' && (
+        <div className="fixed top-4 right-4 z-40">
+          <ErrorDisplay error={error} onRetry={handleRetry} />
+        </div>
+      )}
+
+      {/* Slide Deck Modal */}
+      <SlideDeckModal
+        isOpen={appState === 'viewing'}
+        onClose={handleCloseModal}
+        slideDeck={slideDeck}
+        onUpdateSlide={handleUpdateSlide}
+      />
+    </>
   );
 }
