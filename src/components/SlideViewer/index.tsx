@@ -1,11 +1,11 @@
 'use client';
 
 import { useEffect } from 'react';
-import Modal from '@/components/shared/Modal';
-import SlideViewer from '@/components/SlideViewer';
+import SlideViewer from '@/components/SlideViewer/slide/SlideDeckViewer';
 import { useUIStore } from '@/store/useUIStore';
 import { useSlideDeckStore } from '@/store/useSlideDeckStore';
 import type { SlideDeck, SlideContent } from '@/types';
+import { Modal } from '../ui';
 
 interface SlideDeckModalProps {
   isOpen: boolean;

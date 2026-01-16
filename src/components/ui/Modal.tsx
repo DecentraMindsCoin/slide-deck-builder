@@ -2,8 +2,8 @@
 
 import { useEffect } from 'react';
 import { X } from 'lucide-react';
-import Button from '@/components/shared/Button';
-import type { PanelType } from '@/store/useUIStore';
+import Button from '@/components/ui/Button';
+import { PanelType } from '@/types/store';
 
 interface ModalProps {
   children: React.ReactNode;

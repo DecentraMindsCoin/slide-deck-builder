@@ -1,15 +1,5 @@
 import { create } from 'zustand';
-
-export type PanelType = 'history' | 'editor' | null;
-
-interface UIState {
-  activePanel: PanelType;
-  setActivePanel: (panel: PanelType) => void;
-  togglePanel: (panel: Exclude<PanelType, null>) => void;
-  // Legacy getters for backward compatibility
-  isHistoryPanelOpen: boolean;
-  isEditorPanelOpen: boolean;
-}
+import type { UIState } from '@/types/store';
 
 export const useUIStore = create<UIState>((set, get) => ({
   activePanel: null,

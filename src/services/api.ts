@@ -1,5 +1,17 @@
+
+/**
+ * API Service Layer
+ * 
+ * Handles business logic for external API calls including:
+ * - Request orchestration and validation
+ * - Error handling and transformation
+ * - Response normalization
+ * 
+ * Uses utilities from /lib for reusable HTTP helpers
+ */
+
 import type { ApiResponse, ApiError } from "@/types";
-import { createAbortController, DEFAULT_REQUEST_TIMEOUT } from "@/lib";
+import { createAbortController, DEFAULT_REQUEST_TIMEOUT } from "@/lib/utils/index";
 
 /**
  * Generates slides from a prompt using the AI API

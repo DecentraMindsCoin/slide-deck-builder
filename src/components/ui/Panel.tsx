@@ -2,7 +2,7 @@
 
 import { ReactNode } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import type { PanelType } from '@/store/useUIStore';
+import { PanelType } from '@/types';
 
 interface PanelProps {
   panelType: Exclude<PanelType, null>;

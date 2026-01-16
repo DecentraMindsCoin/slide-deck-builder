@@ -1,7 +1,7 @@
 'use client';
 
 import { Sparkles, Briefcase, GraduationCap, TrendingUp, Lightbulb, Users } from 'lucide-react';
-import Button from '@/components/shared/Button';
+import Button from '@/components/ui/Button';
 
 interface Template {
   id: string;
@@ -76,7 +76,7 @@ const templates: Template[] = [
 
 export default function ExploreTemplates({ onSelectTemplate }: ExploreTemplatesProps) {
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 py-12">
+    <div className="w-full max-w-7xl mx-auto px-4 py-12 -mt-12">
       <div className="mb-8">
         <h2 className="text-3xl font-bold text-white mb-2">Explore Templates</h2>
         <p className="text-zinc-400">Start with a professionally designed template</p>
@@ -86,7 +86,7 @@ export default function ExploreTemplates({ onSelectTemplate }: ExploreTemplatesP
         {templates.map((template) => (
           <div
             key={template.id}
-            className={`group relative bg-gradient-to-br ${template.color} backdrop-blur-sm rounded-2xl border p-6 hover:scale-[1.02] transition-all duration-300 cursor-pointer`}
+            className={`group relative bg-linear-to-br ${template.color} backdrop-blur-sm rounded-2xl border p-6 hover:scale-[1.02] transition-all duration-300 cursor-pointer`}
             onClick={() => onSelectTemplate(template.prompt)}
           >
             {/* Icon Badge */}

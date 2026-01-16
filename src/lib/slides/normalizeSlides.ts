@@ -1,5 +1,5 @@
 import type { SlideDeck, Slide, SlideContent } from '@/types';
-import { SLIDE_DEFAULTS } from '@/lib/config';
+import { SLIDE_DEFAULTS } from '@/constants/slides';
 
 /**
  * Normalizes slide deck data with default styles for PowerPoint compatibility

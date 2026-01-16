@@ -1,6 +1,6 @@
 import pptxgen from 'pptxgenjs';
 import type { SlideDeck, SlideContent } from '@/types';
-import { SLIDE_DEFAULTS } from '@/lib/config';
+import { SLIDE_DEFAULTS } from '@/constants';
 
 /**
  * Converts hex color to PptxGenJS color format (removes #)
