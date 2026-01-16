@@ -8,6 +8,7 @@ import PromptInput from '@/components/PromptInput';
 import SlideDeckModal from '@/components/SlideDeckModal';
 import ErrorDisplay from '@/components/ErrorDisplay';
 import { generateSlides } from '@/services/api';
+import { normalizeSlides } from '@/lib/normalizeSlides';
 import { useSlideDeckStore } from '@/store/useSlideDeckStore';
 import { useUIStore } from '@/store/useUIStore';
 import type { SlideContent } from '@/types';
@@ -36,9 +37,11 @@ export default function Home() {
 
     try {
       const response = await generateSlides(prompt);
-      if (response.success && response.data) {
-        setSlideDeck(response.data);
-        addToHistory(response.data, prompt);
+      if (response.success) {
+        // Normalize slides with default white background and black text
+        const normalizedDeck = normalizeSlides(response.data);
+        setSlideDeck(normalizedDeck);
+        addToHistory(normalizedDeck, prompt);
         setAppState('viewing');
       } else {
         throw new Error('Failed to generate slides');

@@ -1,9 +1,11 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { ChevronLeft, ChevronRight, Edit2, Check, X, Home } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Edit2, Check, X, Home, Download } from 'lucide-react';
 import Button from '@/components/shared/Button';
 import { useSlideDeckStore } from '@/store/useSlideDeckStore';
+import { exportToPPTX } from '@/lib/exportToPPTX';
+import { SLIDE_DEFAULTS } from '@/lib/config';
 import type { Slide, SlideContent, SlideViewerProps } from '@/types';
 
 export default function SlideViewer({
@@ -53,6 +55,15 @@ export default function SlideViewer({
       idx === index ? { ...item, text: newText } : item
     );
     onUpdateSlide(currentSlide.id, currentSlide.title, updatedContent);
+  };
+
+  const handleExportToPPTX = async () => {
+    try {
+      await exportToPPTX({ deckTitle, slides });
+    } catch (error) {
+      console.error('Failed to export PowerPoint:', error);
+      alert('Failed to export PowerPoint. Please try again.');
+    }
   };
 
   useEffect(() => {
@@ -141,9 +152,13 @@ export default function SlideViewer({
       <header className="bg-zinc-900 border-b border-zinc-800 px-6 py-4 shrink-0">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-white">{deckTitle}</h1>
-          {/* <Button onClick={onReset} variant="ghost" icon={<X className="w-4 h-4" />}>
-            Close
-          </Button> */}
+          <Button 
+            onClick={handleExportToPPTX} 
+            variant="primary" 
+            icon={<Download className="w-4 h-4" />}
+          >
+            Export to PowerPoint
+          </Button>
         </div>
       </header>
 
@@ -157,7 +172,7 @@ export default function SlideViewer({
                 : 'hover:ring-1 hover:ring-zinc-700'
             }`}
             style={{
-              backgroundColor: currentSlide.backgroundColor || '#18181b',
+              backgroundColor: currentSlide.backgroundColor || SLIDE_DEFAULTS.BACKGROUND_COLOR,
             }}
             onClick={(e) => {
               if (e.target === e.currentTarget) {
@@ -172,7 +187,8 @@ export default function SlideViewer({
                     type="text"
                     value={editedTitle}
                     onChange={(e) => setEditedTitle(e.target.value)}
-                    className="flex-1 text-4xl font-bold text-white bg-transparent border-b-2 border-zinc-600 focus:border-zinc-500 focus:outline-none"
+                    className="flex-1 text-4xl font-bold bg-transparent border-b-2 border-zinc-400 focus:border-zinc-500 focus:outline-none"
+                    style={{ color: SLIDE_DEFAULTS.TITLE_COLOR }}
                     autoFocus
                   />
                   <Button onClick={saveTitle} size="sm" variant="primary" className="bg-green-600 hover:bg-green-700">
@@ -184,7 +200,7 @@ export default function SlideViewer({
                 </div>
               ) : (
                 <div className="flex items-center gap-3">
-                  <h2 className="text-4xl font-bold text-white">
+                  <h2 className="text-4xl font-bold" style={{ color: SLIDE_DEFAULTS.TITLE_COLOR }}>
                     {currentSlide.title}
                   </h2>
                   <Button onClick={startEditingTitle} variant="ghost" size="sm">
@@ -270,7 +286,7 @@ export default function SlideViewer({
                       >
                         {item.type === 'bullet' ? (
                           <div className="flex items-start gap-3">
-                            <span className="text-zinc-400 text-2xl mt-1">•</span>
+                            <span className="text-2xl mt-1" style={{ color: style.color || SLIDE_DEFAULTS.TEXT_COLOR }}>•</span>
                             <p 
                               ref={(el) => {
                                 if (isSelected) editableRefs.current[index] = el;
@@ -280,16 +296,16 @@ export default function SlideViewer({
                               onBlur={(e) => handleTextEdit(index, e.currentTarget)}
                               className={`flex-1 outline-none ${isSelected ? 'cursor-text' : ''}`}
                               style={{
-                                fontSize: style.fontSize ? `${style.fontSize}px` : '20px',
-                                fontFamily: style.fontFamily || 'inherit',
-                                fontWeight: style.fontWeight || 'normal',
-                                fontStyle: style.fontStyle || 'normal',
-                                textDecoration: style.textDecoration || 'none',
-                                color: style.color || 'rgb(212, 212, 216)',
-                                backgroundColor: style.backgroundColor || 'transparent',
-                                textAlign: style.textAlign || 'left',
-                                lineHeight: style.lineHeight || 1.5,
-                                letterSpacing: style.letterSpacing ? `${style.letterSpacing}px` : '0px',
+                                fontSize: style.fontSize ? `${style.fontSize}px` : `${SLIDE_DEFAULTS.FONT_SIZE}px`,
+                                fontFamily: style.fontFamily || SLIDE_DEFAULTS.FONT_FAMILY,
+                                fontWeight: style.fontWeight || SLIDE_DEFAULTS.FONT_WEIGHT,
+                                fontStyle: style.fontStyle || SLIDE_DEFAULTS.FONT_STYLE,
+                                textDecoration: style.textDecoration || SLIDE_DEFAULTS.TEXT_DECORATION,
+                                color: style.color || SLIDE_DEFAULTS.TEXT_COLOR,
+                                backgroundColor: style.backgroundColor || SLIDE_DEFAULTS.TRANSPARENT,
+                                textAlign: style.textAlign || SLIDE_DEFAULTS.TEXT_ALIGN,
+                                lineHeight: style.lineHeight || SLIDE_DEFAULTS.LINE_HEIGHT,
+                                letterSpacing: style.letterSpacing ? `${style.letterSpacing}px` : `${SLIDE_DEFAULTS.LETTER_SPACING}px`,
                               }}
                             >
                               {item.text}
@@ -305,16 +321,16 @@ export default function SlideViewer({
                             onBlur={(e) => handleTextEdit(index, e.currentTarget)}
                             className={`leading-relaxed outline-none ${isSelected ? 'cursor-text' : ''}`}
                             style={{
-                              fontSize: style.fontSize ? `${style.fontSize}px` : '20px',
-                              fontFamily: style.fontFamily || 'inherit',
-                              fontWeight: style.fontWeight || 'normal',
-                              fontStyle: style.fontStyle || 'normal',
-                              textDecoration: style.textDecoration || 'none',
-                              color: style.color || 'rgb(212, 212, 216)',
-                              backgroundColor: style.backgroundColor || 'transparent',
-                              textAlign: style.textAlign || 'left',
-                              lineHeight: style.lineHeight || 1.5,
-                              letterSpacing: style.letterSpacing ? `${style.letterSpacing}px` : '0px',
+                              fontSize: style.fontSize ? `${style.fontSize}px` : `${SLIDE_DEFAULTS.FONT_SIZE}px`,
+                              fontFamily: style.fontFamily || SLIDE_DEFAULTS.FONT_FAMILY,
+                              fontWeight: style.fontWeight || SLIDE_DEFAULTS.FONT_WEIGHT,
+                              fontStyle: style.fontStyle || SLIDE_DEFAULTS.FONT_STYLE,
+                              textDecoration: style.textDecoration || SLIDE_DEFAULTS.TEXT_DECORATION,
+                              color: style.color || SLIDE_DEFAULTS.TEXT_COLOR,
+                              backgroundColor: style.backgroundColor || SLIDE_DEFAULTS.TRANSPARENT,
+                              textAlign: style.textAlign || SLIDE_DEFAULTS.TEXT_ALIGN,
+                              lineHeight: style.lineHeight || SLIDE_DEFAULTS.LINE_HEIGHT,
+                              letterSpacing: style.letterSpacing ? `${style.letterSpacing}px` : `${SLIDE_DEFAULTS.LETTER_SPACING}px`,
                             }}
                           >
                             {item.text}

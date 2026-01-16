@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Eye, Settings, Bold, Italic, Underline, Undo, Check } from 'lucide-react';
 import Panel from '@/components/shared/Panel';
 import Button from '@/components/shared/Button';
 import { useUIStore } from '@/store/useUIStore';
 import { useSlideDeckStore } from '@/store/useSlideDeckStore';
+import { SLIDE_DEFAULTS } from '@/lib/config';
 import type { Slide } from '@/types';
 
 type TabType = 'preview' | 'edit';
@@ -134,16 +135,16 @@ function EditTab() {
   };
 
   const currentStyle = getSelectedElementStyle();
-  const [fontSize, setFontSize] = useState(currentStyle?.fontSize || 20);
-  const [fontFamily, setFontFamily] = useState(currentStyle?.fontFamily || 'inherit');
-  const [fontWeight, setFontWeight] = useState<'normal' | 'bold'>(currentStyle?.fontWeight || 'normal');
-  const [fontStyle, setFontStyle] = useState<'normal' | 'italic'>(currentStyle?.fontStyle || 'normal');
-  const [textDecoration, setTextDecoration] = useState<'none' | 'underline'>(currentStyle?.textDecoration || 'none');
-  const [color, setColor] = useState(currentStyle?.color || '#d4d4d8');
-  const [backgroundColor, setBackgroundColor] = useState(currentStyle?.backgroundColor || 'transparent');
-  const [textAlign, setTextAlign] = useState<'left' | 'center' | 'right'>(currentStyle?.textAlign || 'left');
-  const [lineHeight, setLineHeight] = useState(currentStyle?.lineHeight || 1.5);
-  const [letterSpacing, setLetterSpacing] = useState(currentStyle?.letterSpacing || 0);
+  const [fontSize, setFontSize] = useState(currentStyle?.fontSize || SLIDE_DEFAULTS.FONT_SIZE);
+  const [fontFamily, setFontFamily] = useState(currentStyle?.fontFamily || SLIDE_DEFAULTS.FONT_FAMILY);
+  const [fontWeight, setFontWeight] = useState<'normal' | 'bold'>(currentStyle?.fontWeight || SLIDE_DEFAULTS.FONT_WEIGHT);
+  const [fontStyle, setFontStyle] = useState<'normal' | 'italic'>(currentStyle?.fontStyle || SLIDE_DEFAULTS.FONT_STYLE);
+  const [textDecoration, setTextDecoration] = useState<'none' | 'underline'>(currentStyle?.textDecoration || SLIDE_DEFAULTS.TEXT_DECORATION);
+  const [color, setColor] = useState(currentStyle?.color || SLIDE_DEFAULTS.TEXT_COLOR);
+  const [backgroundColor, setBackgroundColor] = useState(currentStyle?.backgroundColor || SLIDE_DEFAULTS.TRANSPARENT);
+  const [textAlign, setTextAlign] = useState<'left' | 'center' | 'right'>(currentStyle?.textAlign || SLIDE_DEFAULTS.TEXT_ALIGN);
+  const [lineHeight, setLineHeight] = useState(currentStyle?.lineHeight || SLIDE_DEFAULTS.LINE_HEIGHT);
+  const [letterSpacing, setLetterSpacing] = useState(currentStyle?.letterSpacing || SLIDE_DEFAULTS.LETTER_SPACING);
   
   // Slide-level styling
   const updateSlideBackground = useSlideDeckStore((state) => state.updateSlideBackground);
@@ -154,36 +155,46 @@ function EditTab() {
     return slideDeck.slides[currentSlideIndex];
   };
   const [slideBackgroundColor, setSlideBackgroundColor] = useState(
-    getCurrentSlide()?.backgroundColor || '#18181b'
+    getCurrentSlide()?.backgroundColor || SLIDE_DEFAULTS.BACKGROUND_COLOR
   );
 
   // Update local state when selection changes
   useEffect(() => {
+    isInitialLoad.current = true; // Reset flag when selection changes
     if (selectedElement?.contentIndex === 'slide') {
       // Load slide background color
       const currentSlide = getCurrentSlide();
-      setSlideBackgroundColor(currentSlide?.backgroundColor || '#18181b');
+      setSlideBackgroundColor(currentSlide?.backgroundColor || SLIDE_DEFAULTS.BACKGROUND_COLOR);
     } else {
       // Load element styles
       const style = getSelectedElementStyle();
       if (style) {
-        setFontSize(style.fontSize || 20);
-        setFontFamily(style.fontFamily || 'inherit');
-        setFontWeight(style.fontWeight || 'normal');
-        setFontStyle(style.fontStyle || 'normal');
-        setTextDecoration(style.textDecoration || 'none');
-        setColor(style.color || '#d4d4d8');
-        setBackgroundColor(style.backgroundColor || 'transparent');
-        setTextAlign(style.textAlign || 'left');
-        setLineHeight(style.lineHeight || 1.5);
-        setLetterSpacing(style.letterSpacing || 0);
+        setFontSize(style.fontSize || SLIDE_DEFAULTS.FONT_SIZE);
+        setFontFamily(style.fontFamily || SLIDE_DEFAULTS.FONT_FAMILY);
+        setFontWeight(style.fontWeight || SLIDE_DEFAULTS.FONT_WEIGHT);
+        setFontStyle(style.fontStyle || SLIDE_DEFAULTS.FONT_STYLE);
+        setTextDecoration(style.textDecoration || SLIDE_DEFAULTS.TEXT_DECORATION);
+        setColor(style.color || SLIDE_DEFAULTS.TEXT_COLOR);
+        setBackgroundColor(style.backgroundColor || SLIDE_DEFAULTS.TRANSPARENT);
+        setTextAlign(style.textAlign || SLIDE_DEFAULTS.TEXT_ALIGN);
+        setLineHeight(style.lineHeight || SLIDE_DEFAULTS.LINE_HEIGHT);
+        setLetterSpacing(style.letterSpacing || SLIDE_DEFAULTS.LETTER_SPACING);
       }
     }
   }, [selectedElement, currentSlideIndex]);
 
+  // Track if this is the initial load to prevent auto-apply on selection
+  const isInitialLoad = useRef(true);
+
   // Auto-apply element styles whenever they change
   useEffect(() => {
     if (!selectedElement || selectedElement.contentIndex === 'slide') return;
+    
+    // Skip auto-apply on initial selection (when styles are loaded from store)
+    if (isInitialLoad.current) {
+      isInitialLoad.current = false;
+      return;
+    }
     
     updateElementStyle(selectedElement.slideId, selectedElement.contentIndex as number, {
       fontSize,
@@ -197,7 +208,7 @@ function EditTab() {
       lineHeight,
       letterSpacing,
     });
-  }, [fontSize, fontFamily, fontWeight, fontStyle, textDecoration, color, backgroundColor, textAlign, lineHeight, letterSpacing]);
+  }, [selectedElement, fontSize, fontFamily, fontWeight, fontStyle, textDecoration, color, backgroundColor, textAlign, lineHeight, letterSpacing, updateElementStyle]);
 
   // Auto-apply slide background when it changes
   useEffect(() => {
