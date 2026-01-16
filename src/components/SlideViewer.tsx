@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, ChevronRight, Edit2, Check, X, Home } from 'lucide-react';
 import Button from '@/components/shared/Button';
+import { useSlideDeckStore } from '@/store/useSlideDeckStore';
 import type { Slide, SlideContent, SlideViewerProps } from '@/types';
 
 export default function SlideViewer({
@@ -14,6 +15,9 @@ export default function SlideViewer({
   onSlideChange,
 }: SlideViewerProps) {
   const [internalIndex, setInternalIndex] = useState(0);
+  const selectedElement = useSlideDeckStore((state) => state.selectedElement);
+  const setSelectedElement = useSlideDeckStore((state) => state.setSelectedElement);
+  const editableRefs = useRef<{ [key: number]: HTMLElement | null }>({});
   
   // Use external index if provided, otherwise use internal
   const currentIndex = currentSlideIndex !== undefined ? currentSlideIndex : internalIndex;
@@ -24,6 +28,32 @@ export default function SlideViewer({
   const [editedContent, setEditedContent] = useState<SlideContent[]>([]);
 
   const currentSlide = slides[currentIndex];
+
+  // Focus and place cursor at end when element is selected
+  useEffect(() => {
+    if (selectedElement && selectedElement.contentIndex !== 'slide' && typeof selectedElement.contentIndex === 'number') {
+      const element = editableRefs.current[selectedElement.contentIndex];
+      if (element) {
+        element.focus();
+        // Place cursor at end
+        const range = document.createRange();
+        const selection = window.getSelection();
+        range.selectNodeContents(element);
+        range.collapse(false);
+        selection?.removeAllRanges();
+        selection?.addRange(range);
+      }
+    }
+  }, [selectedElement]);
+
+  // Handle inline text editing - only on blur to preserve cursor position
+  const handleTextEdit = (index: number, element: HTMLElement) => {
+    const newText = element.textContent || '';
+    const updatedContent = currentSlide.content.map((item, idx) => 
+      idx === index ? { ...item, text: newText } : item
+    );
+    onUpdateSlide(currentSlide.id, currentSlide.title, updatedContent);
+  };
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -120,7 +150,21 @@ export default function SlideViewer({
       {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto p-8">
         <div className="w-full max-w-5xl mx-auto h-full flex items-center">
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl p-12 w-full min-h-[500px] flex flex-col">
+          <div 
+            className={`border border-zinc-800 rounded-2xl shadow-2xl p-12 w-full min-h-[500px] flex flex-col cursor-pointer transition-all ${
+              selectedElement?.contentIndex === 'slide' && selectedElement?.slideId === currentSlide.id
+                ? 'ring-2 ring-blue-500 ring-offset-2 ring-offset-zinc-950'
+                : 'hover:ring-1 hover:ring-zinc-700'
+            }`}
+            style={{
+              backgroundColor: currentSlide.backgroundColor || '#18181b',
+            }}
+            onClick={(e) => {
+              if (e.target === e.currentTarget) {
+                setSelectedElement({ slideId: currentSlide.id, contentIndex: 'slide' });
+              }
+            }}
+          >
             <div className="mb-8">
               {isEditingTitle ? (
                 <div className="flex items-center gap-2">
@@ -201,21 +245,84 @@ export default function SlideViewer({
                   </div>
                 </div>
               ) : (
-                <div className="space-y-4">
-                  {currentSlide.content.map((item, index) => (
-                    <div key={index}>
-                      {item.type === 'bullet' ? (
-                        <div className="flex items-start gap-3">
-                          <span className="text-zinc-400 text-2xl mt-1">•</span>
-                          <p className="text-xl text-zinc-300 flex-1">{item.text}</p>
-                        </div>
-                      ) : (
-                        <p className="text-xl text-zinc-300 leading-relaxed">
-                          {item.text}
-                        </p>
-                      )}
-                    </div>
-                  ))}
+                <div 
+                  className="space-y-4"
+                  onClick={(e) => {
+                    if (e.target === e.currentTarget) {
+                      setSelectedElement({ slideId: currentSlide.id, contentIndex: 'slide' });
+                    }
+                  }}
+                >
+                  {currentSlide.content.map((item, index) => {
+                    const isSelected = selectedElement?.slideId === currentSlide.id && selectedElement?.contentIndex === index;
+                    const style = item.style || {};
+                    
+                    return (
+                      <div 
+                        key={index}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedElement({ slideId: currentSlide.id, contentIndex: index });
+                        }}
+                        className={`cursor-text transition-all rounded p-2 -m-2 ${
+                          isSelected ? 'border-2 border-dashed border-blue-500 bg-blue-500/5' : 'hover:bg-zinc-800/30'
+                        }`}
+                      >
+                        {item.type === 'bullet' ? (
+                          <div className="flex items-start gap-3">
+                            <span className="text-zinc-400 text-2xl mt-1">•</span>
+                            <p 
+                              ref={(el) => {
+                                if (isSelected) editableRefs.current[index] = el;
+                              }}
+                              contentEditable={isSelected}
+                              suppressContentEditableWarning
+                              onBlur={(e) => handleTextEdit(index, e.currentTarget)}
+                              className={`flex-1 outline-none ${isSelected ? 'cursor-text' : ''}`}
+                              style={{
+                                fontSize: style.fontSize ? `${style.fontSize}px` : '20px',
+                                fontFamily: style.fontFamily || 'inherit',
+                                fontWeight: style.fontWeight || 'normal',
+                                fontStyle: style.fontStyle || 'normal',
+                                textDecoration: style.textDecoration || 'none',
+                                color: style.color || 'rgb(212, 212, 216)',
+                                backgroundColor: style.backgroundColor || 'transparent',
+                                textAlign: style.textAlign || 'left',
+                                lineHeight: style.lineHeight || 1.5,
+                                letterSpacing: style.letterSpacing ? `${style.letterSpacing}px` : '0px',
+                              }}
+                            >
+                              {item.text}
+                            </p>
+                          </div>
+                        ) : (
+                          <p 
+                            ref={(el) => {
+                              if (isSelected) editableRefs.current[index] = el;
+                            }}
+                            contentEditable={isSelected}
+                            suppressContentEditableWarning
+                            onBlur={(e) => handleTextEdit(index, e.currentTarget)}
+                            className={`leading-relaxed outline-none ${isSelected ? 'cursor-text' : ''}`}
+                            style={{
+                              fontSize: style.fontSize ? `${style.fontSize}px` : '20px',
+                              fontFamily: style.fontFamily || 'inherit',
+                              fontWeight: style.fontWeight || 'normal',
+                              fontStyle: style.fontStyle || 'normal',
+                              textDecoration: style.textDecoration || 'none',
+                              color: style.color || 'rgb(212, 212, 216)',
+                              backgroundColor: style.backgroundColor || 'transparent',
+                              textAlign: style.textAlign || 'left',
+                              lineHeight: style.lineHeight || 1.5,
+                              letterSpacing: style.letterSpacing ? `${style.letterSpacing}px` : '0px',
+                            }}
+                          >
+                            {item.text}
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })}
                   <Button
                     onClick={startEditingContent}
                     variant="ghost"

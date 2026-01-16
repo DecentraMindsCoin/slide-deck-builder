@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { Eye, Settings, Bold, Italic, Underline } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Eye, Settings, Bold, Italic, Underline, Undo, Check } from 'lucide-react';
 import Panel from '@/components/shared/Panel';
 import Button from '@/components/shared/Button';
 import { useUIStore } from '@/store/useUIStore';
@@ -115,8 +115,160 @@ function PreviewTab({ slides, currentSlideIndex, onSlideSelect }: { slides: Slid
 
 // Edit Tab - Formatting Controls
 function EditTab() {
+  const selectedElement = useSlideDeckStore((state) => state.selectedElement);
+  const slideDeck = useSlideDeckStore((state) => state.slideDeck);
+  const updateElementStyle = useSlideDeckStore((state) => state.updateElementStyle);
+  const currentSlideIndex = useSlideDeckStore((state) => state.currentSlideIndex);
+
+  // Get the selected element's current style
+  const getSelectedElementStyle = () => {
+    if (!selectedElement || !slideDeck) return null;
+    const slide = slideDeck.slides[currentSlideIndex];
+    if (!slide) return null;
+    
+    // If slide is selected, return empty style object
+    if (selectedElement.contentIndex === 'slide') return {};
+    
+    const content = slide.content[selectedElement.contentIndex as number];
+    return content?.style || {};
+  };
+
+  const currentStyle = getSelectedElementStyle();
+  const [fontSize, setFontSize] = useState(currentStyle?.fontSize || 20);
+  const [fontFamily, setFontFamily] = useState(currentStyle?.fontFamily || 'inherit');
+  const [fontWeight, setFontWeight] = useState<'normal' | 'bold'>(currentStyle?.fontWeight || 'normal');
+  const [fontStyle, setFontStyle] = useState<'normal' | 'italic'>(currentStyle?.fontStyle || 'normal');
+  const [textDecoration, setTextDecoration] = useState<'none' | 'underline'>(currentStyle?.textDecoration || 'none');
+  const [color, setColor] = useState(currentStyle?.color || '#d4d4d8');
+  const [backgroundColor, setBackgroundColor] = useState(currentStyle?.backgroundColor || 'transparent');
+  const [textAlign, setTextAlign] = useState<'left' | 'center' | 'right'>(currentStyle?.textAlign || 'left');
+  const [lineHeight, setLineHeight] = useState(currentStyle?.lineHeight || 1.5);
+  const [letterSpacing, setLetterSpacing] = useState(currentStyle?.letterSpacing || 0);
+  
+  // Slide-level styling
+  const updateSlideBackground = useSlideDeckStore((state) => state.updateSlideBackground);
+  const styleHistory = useSlideDeckStore((state) => state.styleHistory);
+  const undoLastStyleChange = useSlideDeckStore((state) => state.undoLastStyleChange);
+  const getCurrentSlide = () => {
+    if (!slideDeck) return null;
+    return slideDeck.slides[currentSlideIndex];
+  };
+  const [slideBackgroundColor, setSlideBackgroundColor] = useState(
+    getCurrentSlide()?.backgroundColor || '#18181b'
+  );
+
+  // Update local state when selection changes
+  useEffect(() => {
+    if (selectedElement?.contentIndex === 'slide') {
+      // Load slide background color
+      const currentSlide = getCurrentSlide();
+      setSlideBackgroundColor(currentSlide?.backgroundColor || '#18181b');
+    } else {
+      // Load element styles
+      const style = getSelectedElementStyle();
+      if (style) {
+        setFontSize(style.fontSize || 20);
+        setFontFamily(style.fontFamily || 'inherit');
+        setFontWeight(style.fontWeight || 'normal');
+        setFontStyle(style.fontStyle || 'normal');
+        setTextDecoration(style.textDecoration || 'none');
+        setColor(style.color || '#d4d4d8');
+        setBackgroundColor(style.backgroundColor || 'transparent');
+        setTextAlign(style.textAlign || 'left');
+        setLineHeight(style.lineHeight || 1.5);
+        setLetterSpacing(style.letterSpacing || 0);
+      }
+    }
+  }, [selectedElement, currentSlideIndex]);
+
+  // Auto-apply element styles whenever they change
+  useEffect(() => {
+    if (!selectedElement || selectedElement.contentIndex === 'slide') return;
+    
+    updateElementStyle(selectedElement.slideId, selectedElement.contentIndex as number, {
+      fontSize,
+      fontFamily,
+      fontWeight,
+      fontStyle,
+      textDecoration,
+      color,
+      backgroundColor,
+      textAlign,
+      lineHeight,
+      letterSpacing,
+    });
+  }, [fontSize, fontFamily, fontWeight, fontStyle, textDecoration, color, backgroundColor, textAlign, lineHeight, letterSpacing]);
+
+  // Auto-apply slide background when it changes
+  useEffect(() => {
+    if (!selectedElement || selectedElement.contentIndex !== 'slide') return;
+    
+    updateSlideBackground(selectedElement.slideId, slideBackgroundColor);
+  }, [slideBackgroundColor]);
+
+  if (!selectedElement) {
+    return (
+      <div className="p-4 flex items-center justify-center h-full">
+        <div className="text-center text-zinc-500">
+          <p className="text-sm">Select an element or the slide background to edit</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If slide is selected, show slide-level controls
+  if (selectedElement.contentIndex === 'slide') {
+    return (
+      <>
+        <div className="flex-1 overflow-y-auto p-4 space-y-6 pb-20">
+          <div>
+            <div className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-3">
+              Slide Background
+            </div>
+            <div className="space-y-3">
+              <div>
+                <label className="text-sm text-zinc-300 mb-2 block">Background Color</label>
+                <div className="flex gap-2">
+                  <input
+                    type="color"
+                    value={slideBackgroundColor}
+                    onChange={(e) => setSlideBackgroundColor(e.target.value)}
+                    className="w-12 h-10 bg-zinc-800 border border-zinc-700 rounded-lg cursor-pointer"
+                  />
+                  <input
+                    type="text"
+                    value={slideBackgroundColor}
+                    onChange={(e) => setSlideBackgroundColor(e.target.value)}
+                    placeholder="#18181b"
+                    className="flex-1 px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-zinc-600"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Fixed Footer with Undo Button */}
+        {styleHistory.length > 0 && (
+          <div className="absolute bottom-0 left-0 right-0 p-4 bg-zinc-900 border-t border-zinc-800">
+            <Button 
+              onClick={undoLastStyleChange}
+              variant="secondary"
+              icon={<Undo className="w-4 h-4" />}
+              fullWidth
+            >
+              Undo
+            </Button>
+          </div>
+        )}
+      </>
+    );
+  }
+
+  // Element-level controls
   return (
-    <div className="p-4 space-y-6">
+    <>
+      <div className="flex-1 overflow-y-auto p-4 space-y-6 pb-20">
       {/* Text Formatting */}
       <div>
         <div className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-3">
@@ -126,21 +278,29 @@ function EditTab() {
           {/* Font Family */}
           <div>
             <label className="text-sm text-zinc-300 mb-2 block">Font Family</label>
-            <select className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-zinc-600">
-              <option>Inter</option>
-              <option>Helvetica</option>
-              <option>Arial</option>
-              <option>Times New Roman</option>
-              <option>Georgia</option>
+            <select 
+              value={fontFamily}
+              onChange={(e) => setFontFamily(e.target.value)}
+              className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-zinc-600"
+            >
+              <option value="inherit">Default</option>
+              <option value="Inter">Inter</option>
+              <option value="Helvetica">Helvetica</option>
+              <option value="Arial">Arial</option>
+              <option value="Times New Roman">Times New Roman</option>
+              <option value="Georgia">Georgia</option>
             </select>
           </div>
 
           {/* Font Size */}
           <div>
-            <label className="text-sm text-zinc-300 mb-2 block">Font Size</label>
+            <label className="text-sm text-zinc-300 mb-2 block">Font Size (px)</label>
             <input
               type="number"
-              defaultValue={16}
+              value={fontSize}
+              onChange={(e) => setFontSize(Number(e.target.value))}
+              min="8"
+              max="72"
               className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-zinc-600"
             />
           </div>
@@ -149,15 +309,39 @@ function EditTab() {
           <div>
             <label className="text-sm text-zinc-300 mb-2 block">Style</label>
             <div className="flex gap-2">
-              <Button variant="secondary" size="sm" className="flex-1">
+              <button
+                type="button"
+                className={`flex-1 px-3 py-2 rounded-lg border transition-colors flex items-center justify-center ${
+                  fontWeight === 'bold'
+                    ? 'bg-blue-600 border-blue-500 hover:bg-blue-700'
+                    : 'bg-zinc-800 border-zinc-700 hover:bg-zinc-700'
+                }`}
+                onClick={() => setFontWeight(fontWeight === 'bold' ? 'normal' : 'bold')}
+              >
                 <Bold className="w-4 h-4" />
-              </Button>
-              <Button variant="secondary" size="sm" className="flex-1">
+              </button>
+              <button
+                type="button"
+                className={`flex-1 px-3 py-2 rounded-lg border transition-colors flex items-center justify-center ${
+                  fontStyle === 'italic'
+                    ? 'bg-blue-600 border-blue-500 hover:bg-blue-700'
+                    : 'bg-zinc-800 border-zinc-700 hover:bg-zinc-700'
+                }`}
+                onClick={() => setFontStyle(fontStyle === 'italic' ? 'normal' : 'italic')}
+              >
                 <Italic className="w-4 h-4" />
-              </Button>
-              <Button variant="secondary" size="sm" className="flex-1">
+              </button>
+              <button
+                type="button"
+                className={`flex-1 px-3 py-2 rounded-lg border transition-colors flex items-center justify-center ${
+                  textDecoration === 'underline'
+                    ? 'bg-blue-600 border-blue-500 hover:bg-blue-700'
+                    : 'bg-zinc-800 border-zinc-700 hover:bg-zinc-700'
+                }`}
+                onClick={() => setTextDecoration(textDecoration === 'underline' ? 'none' : 'underline')}
+              >
                 <Underline className="w-4 h-4" />
-              </Button>
+              </button>
             </div>
           </div>
         </div>
@@ -175,12 +359,14 @@ function EditTab() {
             <div className="flex gap-2">
               <input
                 type="color"
-                defaultValue="#ffffff"
+                value={color}
+                onChange={(e) => setColor(e.target.value)}
                 className="w-12 h-10 bg-zinc-800 border border-zinc-700 rounded-lg cursor-pointer"
               />
               <input
                 type="text"
-                defaultValue="#ffffff"
+                value={color}
+                onChange={(e) => setColor(e.target.value)}
                 className="flex-1 px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-zinc-600"
               />
             </div>
@@ -192,12 +378,15 @@ function EditTab() {
             <div className="flex gap-2">
               <input
                 type="color"
-                defaultValue="#1a1a1a"
+                value={backgroundColor === 'transparent' ? '#000000' : backgroundColor}
+                onChange={(e) => setBackgroundColor(e.target.value)}
                 className="w-12 h-10 bg-zinc-800 border border-zinc-700 rounded-lg cursor-pointer"
               />
               <input
                 type="text"
-                defaultValue="#1a1a1a"
+                value={backgroundColor}
+                onChange={(e) => setBackgroundColor(e.target.value)}
+                placeholder="transparent"
                 className="flex-1 px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-zinc-600"
               />
             </div>
@@ -211,13 +400,28 @@ function EditTab() {
           Alignment
         </div>
         <div className="grid grid-cols-3 gap-2">
-          <Button variant="secondary" size="sm">
+          <Button 
+            variant="secondary" 
+            size="sm"
+            className={textAlign === 'left' ? 'bg-blue-600 hover:bg-blue-700' : ''}
+            onClick={() => setTextAlign('left')}
+          >
             Left
           </Button>
-          <Button variant="secondary" size="sm">
+          <Button 
+            variant="secondary" 
+            size="sm"
+            className={textAlign === 'center' ? 'bg-blue-600 hover:bg-blue-700' : ''}
+            onClick={() => setTextAlign('center')}
+          >
             Center
           </Button>
-          <Button variant="secondary" size="sm">
+          <Button 
+            variant="secondary" 
+            size="sm"
+            className={textAlign === 'right' ? 'bg-blue-600 hover:bg-blue-700' : ''}
+            onClick={() => setTextAlign('right')}
+          >
             Right
           </Button>
         </div>
@@ -230,29 +434,46 @@ function EditTab() {
         </div>
         <div className="space-y-3">
           <div>
-            <label className="text-sm text-zinc-300 mb-2 block">Line Height</label>
+            <label className="text-sm text-zinc-300 mb-2 block">Line Height: {lineHeight.toFixed(1)}</label>
             <input
               type="range"
               min="1"
               max="3"
               step="0.1"
-              defaultValue="1.5"
+              value={lineHeight}
+              onChange={(e) => setLineHeight(Number(e.target.value))}
               className="w-full"
             />
           </div>
           <div>
-            <label className="text-sm text-zinc-300 mb-2 block">Letter Spacing</label>
+            <label className="text-sm text-zinc-300 mb-2 block">Letter Spacing: {letterSpacing}px</label>
             <input
               type="range"
               min="-2"
               max="10"
               step="0.5"
-              defaultValue="0"
+              value={letterSpacing}
+              onChange={(e) => setLetterSpacing(Number(e.target.value))}
               className="w-full"
             />
           </div>
         </div>
       </div>
-    </div>
+      </div>
+
+      {/* Fixed Footer with Undo Button */}
+      {styleHistory.length > 0 && (
+        <div className="absolute bottom-0 left-0 right-0 p-4 bg-zinc-900 border-t border-zinc-800">
+          <Button 
+            onClick={undoLastStyleChange}
+            variant="secondary"
+            icon={<Undo className="w-4 h-4" />}
+            fullWidth
+          >
+            Undo
+          </Button>
+        </div>
+      )}
+    </>
   );
 }
