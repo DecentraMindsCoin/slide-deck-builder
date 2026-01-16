@@ -1,34 +1,67 @@
 import type { ApiResponse, ApiError } from '@/types';
-import { getEnvVar } from '@/lib';
+import { getEnvVar, createAbortController, DEFAULT_REQUEST_TIMEOUT } from '@/lib';
 
 const API_URL = getEnvVar('NEXT_PUBLIC_API_URL');
 const API_KEY = getEnvVar('NEXT_PUBLIC_API_KEY');
 
+/**
+ * Generates slides from a prompt using the AI API
+ * @param prompt - The user's prompt for slide generation
+ * @param model - The AI model to use (default: gpt-4o-2024-08-06)
+ * @returns Promise with the generated slide deck
+ * @throws Error if the request fails or times out
+ */
 export async function generateSlides(
   prompt: string,
   model: string = 'gpt-4o-2024-08-06'
 ): Promise<ApiResponse> {
+  const { controller, timeoutId } = createAbortController(DEFAULT_REQUEST_TIMEOUT);
 
-  const response = await fetch(API_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': API_KEY,
-    },
-    body: JSON.stringify({
-      prompt,
-      model,
-    }),
-  });
+  try {
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': API_KEY,
+      },
+      body: JSON.stringify({
+        prompt,
+        model,
+      }),
+      signal: controller.signal,
+      // Next.js specific: disable caching for POST requests
+      cache: 'no-store',
+    });
 
-  if (!response.ok) {
-    const errorData: ApiError = await response.json().catch(() => ({
-      success: false,
-      error: `HTTP error! status: ${response.status}`,
-    }));
-    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errorData: ApiError = await response.json().catch(() => ({
+        success: false,
+        error: `HTTP error! status: ${response.status}`,
+      }));
+      throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+    }
+
+    const data: ApiResponse = await response.json();
+    
+    // Validate response structure
+    if (!data.success || !data.data) {
+      throw new Error('Invalid response format from API');
+    }
+    
+    return data;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    
+    // Handle different error types
+    if (error instanceof Error) {
+      if (error.name === 'AbortError') {
+        throw new Error('Request timeout - the server took too long to respond');
+      }
+      throw error;
+    }
+    
+    throw new Error('An unexpected error occurred while generating slides');
   }
-
-  const data: ApiResponse = await response.json();
-  return data;
 }
