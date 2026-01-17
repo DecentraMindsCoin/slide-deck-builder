@@ -61,6 +61,8 @@ export async function exportToPPTX(deck: SlideDeck): Promise<void> {
 
     // Add slide title with custom styles
     const titleStyle = slide.titleStyle || {};
+    console.log('Exporting title:', slide.title, 'with titleStyle:', titleStyle);
+    
     const titleOptions: any = {
       x: 0.5,
       y: 0.5,
@@ -95,6 +97,7 @@ export async function exportToPPTX(deck: SlideDeck): Promise<void> {
       titleOptions.charSpacing = pxToInches(titleStyle.letterSpacing);
     }
 
+    console.log('Title export options:', titleOptions);
     pptxSlide.addText(slide.title, titleOptions);
 
     // Add content items
@@ -133,6 +136,7 @@ export async function exportToPPTX(deck: SlideDeck): Promise<void> {
           textOptions.fill = { color: bgColor };
         }
       }
+      // need to fix this giving line spacing 150 on export
       if (style.lineHeight) {
         textOptions.lineSpacing = Math.round(style.lineHeight * 100);
       }
