@@ -25,7 +25,6 @@ export default function SlideFooter({
           variant="secondary"
           size="sm"
           icon={<ChevronLeft className="w-4 h-4" />}
-          className="rounded-xl"
         >
           Previous
         </Button>
@@ -36,7 +35,7 @@ export default function SlideFooter({
           variant="secondary"
           size="sm"
           icon={<ChevronRight className="w-4 h-4" />}
-          className="rounded-xl flex-row-reverse"
+          className="flex-row-reverse"
         >
           Next
         </Button>

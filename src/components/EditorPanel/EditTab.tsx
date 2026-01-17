@@ -188,14 +188,14 @@ export default function EditTab() {
 
       {/* Fixed Footer with Undo/Redo Buttons */}
       {(styleHistory.length > 0 || redoHistory.length > 0) && (
-        <div className="absolute bottom-0 left-0 right-0 p-4 bg-zinc-900 border-t border-zinc-800">
+        <div className="absolute bottom-0 left-0 right-0 px-4 py-2 bg-zinc-900 border-t border-zinc-800">
           <div className="flex gap-2">
             <Button 
               onClick={undoLastStyleChange}
               disabled={styleHistory.length === 0}
               variant="secondary"
               icon={<Undo className="w-4 h-4" />}
-              className="flex-1"
+              className="flex-1 py-2"
             >
               Undo
             </Button>
@@ -204,7 +204,7 @@ export default function EditTab() {
               disabled={redoHistory.length === 0}
               variant="secondary"
               icon={<Redo className="w-4 h-4" />}
-              className="flex-1"
+              className="flex-1 py-2"
             >
               Redo
             </Button>

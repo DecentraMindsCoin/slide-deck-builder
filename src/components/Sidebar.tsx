@@ -54,7 +54,7 @@ export default function Sidebar({ onFocusPrompt }: SidebarProps) {
         title="History"
       >
         {history.length > 0 && (
-          <span className="absolute -top-1 -right-1 w-5 h-5 bg-white/10 rounded-full flex items-center justify-center text-[10px] text-white font-semibold">
+          <span className="absolute -bottom-1 -right-1 w-5 h-5 bg-white/50 rounded-full flex items-center justify-center text-[10px] text-black font-semibold">
             {history.length}
           </span>
         )}

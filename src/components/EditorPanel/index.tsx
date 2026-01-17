@@ -30,7 +30,7 @@ export default function EditorPanel() {
       </div>
 
       {/* Content Area */}
-      <div className="flex-1 overflow-y-auto pb-24">
+      <div className="flex-1 overflow-y-auto">
         <EditTab />
       </div>
     </Panel>
