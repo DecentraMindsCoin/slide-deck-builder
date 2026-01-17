@@ -158,6 +158,26 @@ export default function SlideViewer({
     }
   };
 
+  const handleDuplicateElement = () => {
+    if (selectedElement && typeof selectedElement.contentIndex === 'number') {
+      const elementToDuplicate = currentSlide.content[selectedElement.contentIndex];
+      if (elementToDuplicate) {
+        // Insert duplicate right after the selected element
+        const newContent = [
+          ...currentSlide.content.slice(0, selectedElement.contentIndex + 1),
+          { ...elementToDuplicate },
+          ...currentSlide.content.slice(selectedElement.contentIndex + 1),
+        ];
+        onUpdateSlide(currentSlide.id, currentSlide.title, newContent);
+        // Select the newly duplicated element
+        setSelectedElement({
+          slideId: currentSlide.id,
+          contentIndex: selectedElement.contentIndex + 1,
+        });
+      }
+    }
+  };
+
   return (
     <div className="h-full flex flex-col">
       <SlideHeader deckTitle={deckTitle} />
@@ -173,6 +193,7 @@ export default function SlideViewer({
             ? handleDeleteSlide
             : undefined
         }
+        onDuplicateElement={handleDuplicateElement}
         onExport={handleExportToPPTX}
         selectedElement={selectedElement}
       />
