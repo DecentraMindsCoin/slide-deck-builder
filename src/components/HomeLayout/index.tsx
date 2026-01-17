@@ -1,18 +1,21 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import PromptForm from './PromptForm';
 import ExploreTemplates from '@/components/ExploreTemplates';
 import { useSlideDeckStore } from '@/store/useSlideDeckStore';
+import type { Template, TemplateTheme } from '@/constants/templates';
 
 interface HomeLayoutProps { 
-  onSubmit: (prompt: string) => void;
+  onSubmit: (prompt: string, theme?: TemplateTheme) => void;
   isLoading: boolean;
 }
 
 export default function HomeLayout({ onSubmit, isLoading }: HomeLayoutProps) {
   const [prompt, setPrompt] = useState('');
+  const [selectedTheme, setSelectedTheme] = useState<TemplateTheme | undefined>(undefined);
   const appState = useSlideDeckStore((state) => state.appState);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // Clear prompt when returning to input state (after reset or closing modal)
   useEffect(() => {
@@ -24,19 +27,24 @@ export default function HomeLayout({ onSubmit, isLoading }: HomeLayoutProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (prompt.trim() && !isLoading) {
-      onSubmit(prompt.trim());
+      onSubmit(prompt.trim(), selectedTheme);
     }
   };
 
-  const handleTemplateSelect = (templatePrompt: string) => {
-    setPrompt(templatePrompt);
+  const handleTemplateSelect = (template: Template) => {
+    setPrompt(template.prompt);
+    setSelectedTheme(template.theme);
+    
+    // Scroll to top to show prompt and loading state
+    containerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+    
     if (!isLoading) {
-      onSubmit(templatePrompt);
+      onSubmit(template.prompt, template.theme);
     }
   };
 
   return (
-    <div className="h-screen overflow-y-auto bg-zinc-950">
+    <div ref={containerRef} className="h-screen overflow-y-auto bg-zinc-950">
       <PromptForm
         prompt={prompt}
         isLoading={isLoading}

@@ -1,4 +1,4 @@
-import { Loader2, Mic, ArrowRight } from 'lucide-react';
+import { Loader2, ArrowRight } from 'lucide-react';
 import Button from '@/components/ui/Button';
 
 interface PromptFormProps { 
@@ -24,29 +24,24 @@ export default function PromptForm({
         </div>
 
         <form onSubmit={onSubmit} className="space-y-4">
+          {/* Textarea with buttons */}
           <div className="relative">
             <textarea
               id="prompt"
               value={prompt}
               onChange={(e) => onPromptChange(e.target.value)}
               placeholder="Enter your presentation topic and requirements..."
-              className="w-full px-6 py-4 bg-zinc-800 border border-zinc-700 rounded-2xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-zinc-600 focus:border-zinc-600 resize-none transition-all"
-              rows={3}
+              className="w-full px-6 py-4 pb-16 bg-zinc-800 border border-zinc-700 rounded-2xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-zinc-600 focus:border-zinc-600 resize-none transition-all"
+              rows={6}
               disabled={isLoading}
             />
-            <div className="absolute right-4 bottom-4 flex items-center gap-2">
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                iconOnly
-                icon={<Mic className="w-5 h-5" />}
-                title="Voice input"
-              />
+            
+            {/* Submit button at bottom-right */}
+            <div className="absolute right-4 bottom-4">
               <Button
                 type="submit"
                 disabled={!prompt.trim() || isLoading}
-                variant="secondary"
+                variant="primary"
                 size="sm"
                 iconOnly
                 icon={isLoading ? (
@@ -55,9 +50,18 @@ export default function PromptForm({
                   <ArrowRight className="w-5 h-5" />
                 )}
                 title="Generate slides"
+                className="shadow-lg hover:shadow-xl transition-shadow"
               />
             </div>
           </div>
+          
+          {/* Loading message */}
+          {isLoading && (
+            <div className="flex items-center justify-center gap-2 text-zinc-400 mt-4">
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span className="text-sm font-medium">Generating your perfect slide deck...</span>
+            </div>
+          )}
         </form>
       </div>
     </div>

@@ -14,6 +14,7 @@ import { normalizeSlides } from '@/lib/slides/normalizeSlides';
 import { useSlideDeckStore } from '@/store/useSlideDeckStore';
 import { useUIStore } from '@/store/useUIStore';
 import type { SlideContent } from '@/types';
+import type { TemplateTheme } from '@/constants/templates';
 
 export default function Home() {
   const [currentPrompt, setCurrentPrompt] = useState('');
@@ -32,7 +33,7 @@ export default function Home() {
   const addToHistory = useSlideDeckStore((state) => state.addToHistory);
   const reset = useSlideDeckStore((state) => state.reset);
 
-  const handlePromptSubmit = async (prompt: string) => {
+  const handlePromptSubmit = async (prompt: string, theme?: TemplateTheme) => {
     setCurrentPrompt(prompt);
     setAppState('loading');
     setError('');
@@ -40,8 +41,8 @@ export default function Home() {
     try {
       const response = await generateSlides(prompt);
       if (response.success) {
-        // Normalize slides with default white background and black text
-        const normalizedDeck = normalizeSlides(response.data);
+        // Normalize slides with template theme or default styles
+        const normalizedDeck = normalizeSlides(response.data, theme);
         setSlideDeck(normalizedDeck);
         addToHistory(normalizedDeck, prompt);
         setAppState('generated');
