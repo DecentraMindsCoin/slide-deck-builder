@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Undo, Plus, MousePointerClick } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import EmptyState from '@/components/ui/EmptyState';
-import AddElementPopover from '@/components/ui/AddElementPopover';
+import AddElementPopover from '@/components/AddElementPopover';
 import { useSlideDeckStore } from '@/store/useSlideDeckStore';
 import { SLIDE_DEFAULTS } from '@/constants/slides';
 import FontStyleControls from './controls/FontStyleControls';
@@ -158,9 +158,9 @@ export default function EditTab() {
   }, [slideBackgroundColor]);
 
   return (
-    <>
-      {/* All Controls Header */}
-      <div className="p-4 pb-0">
+    <div className="flex flex-col h-full">
+      {/* Fixed Header */}
+      <div className="shrink-0 p-4 pb-0 border-b border-zinc-800">
         <div className="flex items-center justify-between mb-4">
           <div className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
             All Controls
@@ -187,6 +187,7 @@ export default function EditTab() {
         </div>
       </div>
 
+      {/* Scrollable Content */}
       {!selectedElement ? (
         <EmptyState
           icon={MousePointerClick}
@@ -251,6 +252,6 @@ export default function EditTab() {
           </Button>
         </div>
       )}
-    </>
+    </div>
   );
 }

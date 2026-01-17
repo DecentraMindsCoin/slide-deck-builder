@@ -50,8 +50,9 @@ export default function PreviewTab({ slides, currentSlideIndex, onSlideSelect }:
   }
 
   return (
-    <div className="space-y-3">
-      <div className="p-4 pb-0">
+    <div className="flex flex-col h-full">
+      {/* Fixed Header */}
+      <div className="shrink-0 p-4 pb-0 border-b border-zinc-800">
         <div className="flex items-center justify-between mb-4">
           <div className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
             All Slides ({slides.length})
@@ -67,7 +68,9 @@ export default function PreviewTab({ slides, currentSlideIndex, onSlideSelect }:
           </Button>
         </div>
       </div>
-      <div className="px-4 space-y-3">
+      
+      {/* Scrollable Content */}
+      <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
       {slides.map((slide, index) => (
         <div
           key={slide.id}

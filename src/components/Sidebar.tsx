@@ -33,8 +33,6 @@ export default function Sidebar() {
         </span>
       </Button>
 
-      {/* Divider */}
-      <div className="w-8 h-px bg-zinc-800 my-2" />
 
       {/* Navigation Icons */}
       <Button

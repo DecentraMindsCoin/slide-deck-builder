@@ -25,17 +25,19 @@ export default function ViewerPanel() {
       onClose={() => togglePanel('viewer')}
       width="md"
     >
-      {/* Header */}
-      <div className="border-b border-zinc-800 shrink-0 p-4">
-        <div className="flex items-center gap-2">
-          <Eye className="w-5 h-5 text-blue-500" />
-          <h2 className="text-lg font-semibold text-white">Slide Viewer</h2>
+      <div className="flex flex-col h-full">
+        {/* Fixed Header */}
+        <div className="shrink-0 border-b border-zinc-800 p-4">
+          <div className="flex items-center gap-2">
+            <Eye className="w-5 h-5 text-blue-500" />
+            <h2 className="text-lg font-semibold text-white">Slide Viewer</h2>
+          </div>
         </div>
-      </div>
 
-      {/* Content Area */}
-      <div className="flex-1 overflow-y-auto">
-        <PreviewTab slides={slides} currentSlideIndex={currentSlideIndex} onSlideSelect={setCurrentSlideIndex} />
+        {/* PreviewTab with its own header and scrollable content */}
+        <div className="flex-1 overflow-hidden">
+          <PreviewTab slides={slides} currentSlideIndex={currentSlideIndex} onSlideSelect={setCurrentSlideIndex} />
+        </div>
       </div>
     </Panel>
   );

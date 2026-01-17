@@ -34,7 +34,7 @@ export default function HistoryList({
   }
 
   return (
-    <div className="flex-1 overflow-y-auto space-y-2 p-4">
+    <div className="h-full overflow-y-auto space-y-2 p-4">
       {history.map((item) => (
         <div
           key={item.id}

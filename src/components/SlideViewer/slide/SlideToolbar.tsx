@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Plus, Trash2, Copy, Download } from 'lucide-react';
 import Button from '@/components/ui/Button';
-import AddElementPopover from '@/components/ui/AddElementPopover';
+import AddElementPopover from '@/components/AddElementPopover';
 import type { SelectedElement } from '@/types/store';
 
 interface SlideToolbarProps {
@@ -145,7 +145,7 @@ export default function SlideToolbar({
           icon={<Download className="w-4 h-4" />}
           size="sm"
         >
-          Export to PowerPoint
+          Export
         </Button>
       )}
     </div>

@@ -95,11 +95,16 @@ export default function SlideViewer({
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Check if user is typing in a contenteditable field
+      const target = e.target as HTMLElement;
+      const isEditingText = target.isContentEditable || target.tagName === 'INPUT' || target.tagName === 'TEXTAREA';
+
       if (e.key === "ArrowLeft" && currentIndex > 0) {
         setCurrentIndex(currentIndex - 1);
       } else if (e.key === "ArrowRight" && currentIndex < slides.length - 1) {
         setCurrentIndex(currentIndex + 1);
-      } else if ((e.key === "Delete" || e.key === "Backspace") && selectedElement && typeof selectedElement.contentIndex === 'number') {
+      } else if ((e.key === "Delete" || e.key === "Backspace") && selectedElement && typeof selectedElement.contentIndex === 'number' && !isEditingText) {
+        // Only delete element if NOT actively editing text
         e.preventDefault();
         handleDeleteContentItem();
       }
@@ -176,7 +181,7 @@ export default function SlideViewer({
       <div className="flex-1 overflow-y-auto p-8">
         <div className="w-full max-w-5xl mx-auto h-full flex items-center flex-col">
           <div
-            className={`border border-zinc-800 shadow-2xl p-12 w-full min-h-[500px] flex flex-col cursor-pointer transition-all ${
+            className={`relative border border-zinc-800 shadow-2xl p-12 w-full min-h-[500px] flex flex-col cursor-pointer transition-all ${
               selectedElement?.contentIndex === "slide" &&
               selectedElement?.slideId === currentSlide.id
                 ? "ring-2 ring-blue-500 ring-offset-2 ring-offset-zinc-950"
@@ -195,6 +200,10 @@ export default function SlideViewer({
               }
             }}
           >
+            {/* Slide Counter - Absolute positioned at bottom center */}
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/90 text-sm font-medium bg-black/30 px-3 py-1 rounded-full backdrop-blur-sm">
+              {currentIndex + 1} of {slides.length}
+            </div>
             <SlideTitle
               title={currentSlide.title}
               titleStyle={currentSlide.titleStyle}
@@ -244,10 +253,6 @@ export default function SlideViewer({
                 })}
               </div>
             </div>
-          </div>
-          {/* Slide Counter */}
-          <div className="text-white text-sm font-medium text-center pt-2">
-            {currentIndex + 1} of {slides.length}
           </div>
         </div>
       </div>
