@@ -1,193 +1,254 @@
-# AI Slide Deck Builder
+# Dunedain AI Slides
 
-A Next.js application that generates professional slide decks using AI based on user prompts. Built for the Dunedain Frontend Engineer Coding Assessment.
+An AI-powered slide deck builder that generates professional presentations from text prompts. Built with Next.js, TypeScript, Zustand, and Tailwind CSS.
 
-## Features
+---
 
-- 🎨 **AI-Powered Generation**: Create complete slide decks from simple text prompts
-- ✏️ **Editable Content**: Edit slide titles and content inline with immediate state updates
-- ⌨️ **Keyboard Navigation**: Use arrow keys to navigate between slides
-- 📱 **Responsive Design**: Modern, clean UI built with Tailwind CSS
-- 🎯 **Error Handling**: Comprehensive error states with retry functionality
-- 🔄 **Loading States**: Visual feedback during API calls
-
-## Getting Started
+## 🚀 Quick Start
 
 ### Prerequisites
-
 - Node.js 18+ or Yarn
 
 ### Installation
 
-1. Clone the repository:
+1. **Clone the repository**
 ```bash
 git clone https://github.com/DecentraMindsCoin/slide-deck-builder.git
 cd slide-deck-builder
 ```
 
-2. Install dependencies:
+2. **Install dependencies**
 ```bash
 yarn install
-# or
-npm install
 ```
 
-3. Set up environment variables:
+3. **Set up environment variables**
 ```bash
 cp env.example .env.local
 ```
-Then edit `.env.local` and add your API credentials:
+Edit `.env.local` with your API credentials:
 ```env
 NEXT_PUBLIC_API_URL=https://warmind-take-home-e61921e38114.herokuapp.com/api/generate-slides
-NEXT_PUBLIC_API_KEY=your-actual-api-key-here
+NEXT_PUBLIC_API_KEY=your-api-key-here
 ```
 
-4. Run the development server:
+4. **Run the development server**
 ```bash
 yarn dev
-# or
-npm run dev
 ```
 
-5. Open [http://localhost:3000](http://localhost:3000) in your browser
+5. **Open [http://localhost:3000](http://localhost:3000)**
 
-## Usage
+---
 
-1. **Enter a Prompt**: Type a description of the presentation you want to create
-2. **Generate**: Click "Generate Slides" to create your deck
-3. **Navigate**: Use the Previous/Next buttons or arrow keys to move between slides
-4. **Edit**: Click the edit icon on any slide title or content to make changes
-5. **Start Over**: Click "New Deck" to create another presentation
+## ✨ What This App Does
 
-### Example Prompts
+### Core Features
 
-- "Build a presentation for an upcoming 4 vehicle convoy from Austin, TX to Fort Hood, TX"
-- "Create a slide deck about planning a dinner party in Austin"
-- "Make a presentation on best practices for React development"
+- **🎨 AI Generation**: Create complete slide decks from text prompts using GPT-4o
+- **✏️ Live Editing**: Edit slide titles, content, and styles in real-time
+- **🎯 Style Editor**: Comprehensive styling controls (fonts, colors, alignment, spacing)
+- **📚 Deck History**: Auto-saves all generated decks to localStorage
+- **🔄 Undo/Redo**: Full undo/redo support for style changes
+- **📤 Export**: Export decks to PowerPoint (.pptx) format
+- **⌨️ Keyboard Nav**: Arrow keys for slide navigation, Cmd+Z/Cmd+Shift+Z for undo/redo
+- **🎭 Templates**: Pre-built templates with themed styling
 
-## Architecture
+### User Flow
 
-### Project Structure
+1. **Enter a prompt** or select a template
+2. **AI generates** a complete slide deck (title, slides, content)
+3. **View and edit** slides with inline editing and style controls
+4. **Navigate** using arrow keys or Previous/Next buttons
+5. **Export** to PowerPoint or save to history
+6. **Load** previously generated decks from history panel
 
-```
-src/
-├── app/
-│   ├── layout.tsx          # Root layout with metadata
-│   ├── page.tsx            # Main application component
-│   └── globals.css         # Global styles
-├── components/
-│   ├── PromptInput.tsx     # Input form for user prompts
-│   ├── SlideViewer.tsx     # Slide display and navigation
-│   └── ErrorDisplay.tsx    # Error state component
-├── services/
-│   └── api.ts              # API integration layer
-└── types/
-    └── slide.ts            # TypeScript interfaces
-```
+---
 
-### State Management
+## 🏗️ Architecture Overview
 
-The application uses **React useState** for state management, following a simple and effective pattern:
+### Technology Stack
 
-- **AppState**: Tracks current view (`input` | `loading` | `viewing` | `error`)
-- **SlideDeck**: Stores the generated slide deck data
-- **Local Component State**: Each component manages its own editing states
-
-This approach was chosen because:
-- The state is relatively simple and doesn't need to be shared across many components
-- useState provides immediate updates and is easy to reason about
-- No need for Context API or Zustand for this scope
-- Can easily scale to Zustand if additional features require global state
+| Layer | Technology | Purpose |
+|-------|-----------|---------|
+| **Framework** | Next.js 16.1.2 (App Router) | React framework with SSR support |
+| **Language** | TypeScript 5 | Type safety and developer experience |
+| **State** | Zustand | Global state management |
+| **Styling** | Tailwind CSS 4 | Utility-first CSS framework |
+| **Icons** | Lucide React | Consistent iconography |
+| **Export** | PptxGenJS | PowerPoint generation |
 
 ### Key Design Decisions
 
-1. **Component Architecture**
-   - Separation of concerns: Each component has a single responsibility
-   - Props-based communication for clean data flow
-   - Client-side rendering for interactive features
+#### 1. **Zustand for State Management**
+- **Why**: Minimal boilerplate, no provider hell, excellent TypeScript support
+- **Stores**: 
+  - `useSlideDeckStore`: Slide deck data, history, editing state
+  - `useUIStore`: UI state (active panels, modals)
+- **Persistence**: Only history persisted to localStorage (reduces storage, prevents stale state)
 
-2. **API Integration**
-   - Dedicated service layer (`services/api.ts`) for API calls
-   - Type-safe responses with TypeScript interfaces
-   - Centralized error handling
+#### 2. **Panel-Based UI Architecture**
+- **Why**: Professional design tool pattern (Figma, Canva), context preservation
+- **Panels**:
+  - **HistoryPanel**: View and load saved decks
+  - **ViewerPanel**: Thumbnail navigation
+  - **EditorPanel**: Style controls for selected elements
+- **Pattern**: Fixed sidebar + slide-out panels (only one active at a time)
 
-3. **User Experience**
-   - Loading states with animated spinners
-   - Error boundaries with retry functionality
-   - Keyboard shortcuts for power users
-   - Inline editing with save/cancel actions
+#### 3. **Modal System**
+- **Why**: Full control over animations, styling, and panel integration
+- **Features**: Backdrop blur, click-outside to close, escape key, responsive sizing
+- **Loading States**: 2-second loader when opening/switching decks (prevents flicker)
 
-4. **Styling**
-   - Tailwind CSS for rapid, consistent styling
-   - Modern gradient backgrounds and shadows
-   - Responsive design principles
-   - Lucide React for consistent iconography
+#### 4. **Reusable UI Components**
+- **Why**: Consistency, bundle size control, no framework lock-in
+- **Components**: Button, Panel, Modal, CustomSelect, EmptyState
+- **Pattern**: Composition over configuration (flexible, maintainable)
 
-5. **Type Safety**
-   - Full TypeScript implementation
-   - Strict type checking enabled
-   - Interface definitions for all data structures
+#### 5. **Type-Safe API Integration**
+- **Service Layer**: Centralized API client (`services/api.ts`)
+- **Normalization**: Transform API responses into app data structure
+- **Error Handling**: Timeout handling, AbortController, type-safe errors
 
-## API Integration
+---
 
-The app integrates with the Warmind Heroku API:
+## 📁 Project Structure
 
-- **Endpoint**: `https://warmind-take-home-e61921e38114.herokuapp.com/api/generate-slides`
-- **Method**: POST
-- **Authentication**: API key via `x-api-key` header
-- **Model**: GPT-4o (gpt-4o-2024-08-06)
+```
+src/
+├── app/                      # Next.js App Router
+│   ├── page.tsx              # Main application page
+│   └── layout.tsx            # Root layout
+│
+├── components/
+│   ├── ui/                   # Reusable UI primitives
+│   │   ├── Button.tsx
+│   │   ├── Panel.tsx
+│   │   ├── Modal.tsx
+│   │   └── CustomSelect.tsx
+│   │
+│   ├── HomeLayout/           # Landing page
+│   ├── SlideViewer/          # Slide deck modal
+│   ├── EditorPanel/          # Style editor
+│   ├── HistoryPanel/         # Deck history
+│   ├── ViewerPanel/          # Slide thumbnails
+│   └── Sidebar.tsx           # Fixed navigation
+│
+├── store/                    # Zustand stores
+│   ├── useSlideDeckStore.ts  # Slide deck state
+│   └── useUIStore.ts         # UI state
+│
+├── services/
+│   └── api.ts                # API client
+│
+├── lib/
+│   ├── hooks/                # Custom React hooks
+│   └── slides/               # Slide utilities
+│
+├── types/                    # TypeScript types
+│   ├── slides.ts
+│   └── store.ts
+│
+└── constants/                # App constants
+    ├── slides.ts
+    └── templates.ts
+```
 
-### Response Format
+---
+
+## 📚 Documentation
+
+For detailed technical information, see:
+
+- **[DESIGN-DECISIONS.md](docs/DESIGN-DECISIONS.md)**: Technical choices and reasoning
+  - State management strategy
+  - UI architecture patterns
+  - Component design philosophy
+  - Performance optimizations
+
+- **[APP_ARCHITECTURE.md](docs/APP_ARCHITECTURE.md)**: Application structure
+  - Component hierarchy
+  - Data flow patterns
+  - Type system
+  - API integration
+
+---
+
+## 🎯 Key Features Explained
+
+### State Management with Zustand
+
+**Two stores for separation of concerns:**
 
 ```typescript
-{
-  success: boolean;
-  data: {
-    deckTitle: string;
-    slides: Array<{
-      id: string;
-      title: string;
-      content: Array<{
-        type: 'paragraph' | 'bullet';
-        text: string;
-      }>;
-    }>;
-  };
+// Slide deck data and operations
+useSlideDeckStore: {
+  slideDeck, history, currentDeckId,
+  selectedElement, styleHistory, redoHistory,
+  updateSlide, updateElementStyle, undo, redo, ...
+}
+
+// UI state (not persisted)
+useUIStore: {
+  activePanel: 'history' | 'viewer' | 'editor' | null
 }
 ```
 
-## Technology Stack
+**Benefits:**
+- Only history persisted (reduces localStorage size)
+- Undo/redo for style changes (last 10 actions)
+- DevTools integration for debugging
+- Type-safe throughout
 
-- **Framework**: Next.js 16.1.2 (App Router)
-- **Language**: TypeScript 5
-- **Styling**: Tailwind CSS 4
-- **Icons**: Lucide React
-- **Runtime**: React 19
+### Panel System
 
-## Development Notes
+**Pattern**: Fixed sidebar + slide-out panels
+
+```typescript
+// Only one panel active at a time
+activePanel: 'history' | 'viewer' | 'editor' | null
+
+// Toggle behavior
+togglePanel('history')
+  → If open: close it
+  → If closed: open it
+  → If another panel open: switch to this one
+```
+
+**Panels:**
+- **HistoryPanel**: Load/delete saved decks
+- **ViewerPanel**: Navigate via thumbnails
+- **EditorPanel**: Style selected elements
+
+### Reusable UI Components
+
+**Custom component library** (`src/components/ui/`):
+- **Button**: Variants (primary, secondary, danger, icon), sizes, loading states
+- **Panel**: Slide-in animation, configurable width, backdrop
+- **Modal**: Full-screen overlay, responsive, panel-aware
+- **CustomSelect**: Dropdown with custom styling (replaces native `<select>`)
+
+**Why custom**: Bundle size, full control, no framework lock-in
+
+---
+
+## 🔧 Development
 
 ### Code Quality
-
 - Functional components with hooks
-- TypeScript for type safety
-- Clean, modular component structure
+- TypeScript strict mode
 - Consistent naming conventions
 - Comprehensive error handling
+- Component composition pattern
 
-### Future Enhancements
+### Performance
+- Lazy loading with staggered animations
+- Minimal memoization (only where needed)
+- Zustand handles re-render optimization
+- CSS animations (GPU-accelerated)
 
-Potential features that could be added:
-- Export to .pptx format
-- Slide regeneration with chat history
-- Slide reordering via drag-and-drop
-- Theme customization
-- Slide templates
-- Multi-deck management with Zustand
+---
 
-## Time Investment
+## 📝 License
 
-Estimated development time: 5-7 hours
-
-## License
-
-This project was created as part of a coding assessment for Dunedain.
+Created for the Dunedain Frontend Engineer Coding Assessment.
