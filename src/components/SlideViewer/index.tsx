@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { Loader2 } from 'lucide-react';
 import SlideViewer from '@/components/SlideViewer/slide/SlideDeckViewer';
 import { useUIStore } from '@/store/useUIStore';
 import { useSlideDeckStore } from '@/store/useSlideDeckStore';
@@ -21,10 +22,24 @@ export default function SlideDeckModal({
   slideDeck,
   onUpdateSlide,
 }: SlideDeckModalProps) {
+  const [isLoading, setIsLoading] = useState(false);
   const currentSlideIndex = useSlideDeckStore((state) => state.currentSlideIndex);
   const setCurrentSlideIndex = useSlideDeckStore((state) => state.setCurrentSlideIndex);
   const activePanel = useUIStore((state) => state.activePanel);
   const setActivePanel = useUIStore((state) => state.setActivePanel);
+
+  // Show loader for 2 seconds when modal opens or when deck changes
+  useEffect(() => {
+    if (isOpen && slideDeck) {
+      setIsLoading(true);
+      const timer = setTimeout(() => {
+        setIsLoading(false);
+      }, 2000);
+      return () => clearTimeout(timer);
+    } else {
+      setIsLoading(false);
+    }
+  }, [isOpen, slideDeck?.deckTitle]);
 
   // Auto-open EditorPanel when modal opens, close when modal closes
   useEffect(() => {
@@ -64,14 +79,38 @@ export default function SlideDeckModal({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} maxWidth="full" activePanel={activePanel}>
-      <SlideViewer
-        deckTitle={slideDeck.deckTitle}
-        slides={slideDeck.slides}
-        onUpdateSlide={onUpdateSlide}
-        onReset={onClose}
-        currentSlideIndex={currentSlideIndex}
-        onSlideChange={setCurrentSlideIndex}
-      />
+      {isLoading ? (
+        <div className="flex items-center justify-center h-[80vh] bg-zinc-950">
+          <div className="flex flex-col items-center gap-6">
+            {/* Animated loader */}
+            <div className="relative">
+              <div className="absolute inset-0 bg-white/20 rounded-full blur-xl animate-pulse" />
+              <Loader2 className="relative w-16 h-16 text-white animate-spin" />
+            </div>
+            
+            {/* Loading text */}
+            <div className="flex flex-col items-center gap-2">
+              <h3 className="font-rajdhani text-xl font-bold text-white uppercase tracking-tight">
+                Loading Slide Deck
+              </h3>
+              <p className="text-zinc-400 text-sm animate-pulse">
+                Preparing your presentation...
+              </p>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="animate-in fade-in duration-500">
+          <SlideViewer
+            deckTitle={slideDeck.deckTitle}
+            slides={slideDeck.slides}
+            onUpdateSlide={onUpdateSlide}
+            onReset={onClose}
+            currentSlideIndex={currentSlideIndex}
+            onSlideChange={setCurrentSlideIndex}
+          />
+        </div>
+      )}
     </Modal>
   );
 }

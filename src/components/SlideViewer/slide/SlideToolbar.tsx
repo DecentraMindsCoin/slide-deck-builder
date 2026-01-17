@@ -119,7 +119,7 @@ export default function SlideToolbar({
   };
 
   return (
-    <div className="flex items-center justify-between gap-2 py-3 px-6 bg-zinc-900 border-b border-zinc-800">
+    <div className="flex items-center justify-between gap-2 py-3 px-6 bg-black/60 border-b border-zinc-800">
       <div className="flex items-center gap-1">
         {/* Add Element Button with Popover */}
         <div className="relative" ref={addMenuRef}>

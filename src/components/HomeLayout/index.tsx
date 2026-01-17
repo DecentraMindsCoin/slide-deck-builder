@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import PromptForm from './PromptForm';
+import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
+import PromptForm, { type PromptFormRef } from './PromptForm';
 import ExploreTemplates from '@/components/ExploreTemplates';
 import { useSlideDeckStore } from '@/store/useSlideDeckStore';
 import type { Template, TemplateTheme } from '@/constants/templates';
@@ -11,11 +11,22 @@ interface HomeLayoutProps {
   isLoading: boolean;
 }
 
-export default function HomeLayout({ onSubmit, isLoading }: HomeLayoutProps) {
+export interface HomeLayoutRef {
+  focusPrompt: () => void;
+}
+
+const HomeLayout = forwardRef<HomeLayoutRef, HomeLayoutProps>(({ onSubmit, isLoading }, ref) => {
   const [prompt, setPrompt] = useState('');
   const [selectedTheme, setSelectedTheme] = useState<TemplateTheme | undefined>(undefined);
   const appState = useSlideDeckStore((state) => state.appState);
   const containerRef = useRef<HTMLDivElement>(null);
+  const promptFormRef = useRef<PromptFormRef>(null);
+
+  useImperativeHandle(ref, () => ({
+    focusPrompt: () => {
+      promptFormRef.current?.focus();
+    }
+  }));
 
   // Clear prompt when returning to input state (after reset or closing modal)
   useEffect(() => {
@@ -55,6 +66,7 @@ export default function HomeLayout({ onSubmit, isLoading }: HomeLayoutProps) {
       }}
     >
       <PromptForm
+        ref={promptFormRef}
         prompt={prompt}
         isLoading={isLoading}
         onPromptChange={setPrompt}
@@ -65,4 +77,8 @@ export default function HomeLayout({ onSubmit, isLoading }: HomeLayoutProps) {
       </div>
     </div>
   );
-}
+});
+
+HomeLayout.displayName = 'HomeLayout';
+
+export default HomeLayout;

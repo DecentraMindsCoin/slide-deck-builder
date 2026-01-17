@@ -1,5 +1,6 @@
-import { Bold, Italic, Underline } from 'lucide-react';
+import { Bold, Italic, Underline, Plus, Minus } from 'lucide-react';
 import Button from '@/components/ui/Button';
+import CustomSelect from '@/components/ui/CustomSelect';
 import { FONT_FAMILIES, FONT_SIZE_LIMITS, TEXT_STYLES } from '@/constants';
 
 
@@ -35,32 +36,42 @@ export default function FontStyleControls({
       </div>
       <div className="space-y-3">
         {/* Font Family */}
-        <div>
-          <label className="text-sm text-zinc-300 mb-2 block">Font Family</label>
-          <select 
-            value={fontFamily}
-            onChange={(e) => setFontFamily(e.target.value)}
-            className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-zinc-600"
-          >
-            {FONT_FAMILIES.map(({ value, label }) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </select>
-        </div>
+        <CustomSelect
+          label="Font Family"
+          options={FONT_FAMILIES}
+          value={fontFamily}
+          onChange={setFontFamily}
+        />
 
         {/* Font Size */}
         <div>
           <label className="text-sm text-zinc-300 mb-2 block">Font Size (px)</label>
-          <input
-            type="number"
-            value={fontSize}
-            onChange={(e) => setFontSize(Number(e.target.value))}
-            min={FONT_SIZE_LIMITS.MIN}
-            max={FONT_SIZE_LIMITS.MAX}
-            className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-zinc-600"
-          />
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setFontSize(Math.max(FONT_SIZE_LIMITS.MIN, fontSize - 1))}
+              className="shrink-0 w-8 h-8 rounded-full bg-zinc-800 border border-zinc-700 hover:bg-zinc-700 hover:border-zinc-600 transition-colors flex items-center justify-center text-white"
+              title="Decrease font size"
+            >
+              <Minus className="w-4 h-4" />
+            </button>
+            <input
+              type="number"
+              value={fontSize}
+              onChange={(e) => setFontSize(Number(e.target.value))}
+              min={FONT_SIZE_LIMITS.MIN}
+              max={FONT_SIZE_LIMITS.MAX}
+              className="flex-1 px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white text-sm text-center focus:outline-none focus:ring-2 focus:ring-zinc-600"
+            />
+            <button
+              type="button"
+              onClick={() => setFontSize(Math.min(FONT_SIZE_LIMITS.MAX, fontSize + 1))}
+              className="shrink-0 w-8 h-8 rounded-full bg-zinc-800 border border-zinc-700 hover:bg-zinc-700 hover:border-zinc-600 transition-colors flex items-center justify-center text-white"
+              title="Increase font size"
+            >
+              <Plus className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
         {/* Text Style Buttons */}

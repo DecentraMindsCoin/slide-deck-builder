@@ -9,7 +9,11 @@ import HistoryList from './HistoryList';
 import { useSlideDeckStore } from '@/store/useSlideDeckStore';
 import { useUIStore } from '@/store/useUIStore';
 
-export default function HistoryPanel() {
+interface HistoryPanelProps {
+  onFocusPrompt?: () => void;
+}
+
+export default function HistoryPanel({ onFocusPrompt }: HistoryPanelProps) {
   const [deleteConfirm, setDeleteConfirm] = useState<{ id: string; title: string } | null>(null);
   const activePanel = useUIStore((state) => state.activePanel);
   const togglePanel = useUIStore((state) => state.togglePanel);
@@ -19,6 +23,11 @@ export default function HistoryPanel() {
   const loadDeckFromHistory = useSlideDeckStore((state) => state.loadDeckFromHistory);
   const deleteDeckFromHistory = useSlideDeckStore((state) => state.deleteDeckFromHistory);
   const reset = useSlideDeckStore((state) => state.reset);
+
+  const handleNewDeck = () => {
+    reset();
+    onFocusPrompt?.();
+  };
 
   const handleDeleteClick = (e: React.MouseEvent, id: string, title: string) => {
     e.stopPropagation();
@@ -57,7 +66,7 @@ export default function HistoryPanel() {
                   All Decks ({history.length})
                 </div>
                 <Button
-                  onClick={reset}
+                  onClick={handleNewDeck}
                   variant="primary"
                   icon={<Plus className="w-3 h-3" />}
                   size="sm"

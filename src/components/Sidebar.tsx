@@ -6,12 +6,21 @@ import { useSlideDeckStore } from "@/store/useSlideDeckStore";
 import { useUIStore } from "@/store/useUIStore";
 // import { NAV_BUTTONS } from "@/constants/navigation";
 
-export default function Sidebar() {
+interface SidebarProps {
+  onFocusPrompt?: () => void;
+}
+
+export default function Sidebar({ onFocusPrompt }: SidebarProps) {
   const history = useSlideDeckStore((state) => state.history);
   const appState = useSlideDeckStore((state) => state.appState);
   const reset = useSlideDeckStore((state) => state.reset);
   const activePanel = useUIStore((state) => state.activePanel);
   const togglePanel = useUIStore((state) => state.togglePanel);
+
+  const handleNewDeck = () => {
+    reset();
+    onFocusPrompt?.();
+  };
 
   return (
     <aside className="fixed left-0 top-0 h-screen w-16 bg-zinc-900 border-r border-zinc-800 flex flex-col items-center py-4 space-y-2 z-100">
@@ -22,7 +31,7 @@ export default function Sidebar() {
 
       {/* New Deck Button */}
       <Button
-        onClick={reset}
+        onClick={handleNewDeck}
         variant="secondary"
         icon={<Plus className="w-5 h-5" />}
         className="group relative"

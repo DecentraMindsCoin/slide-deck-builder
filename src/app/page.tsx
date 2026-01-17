@@ -1,14 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Sidebar from '@/components/Sidebar';
 import HistoryPanel from '@/components/HistoryPanel';
 import ViewerPanel from '@/components/ViewerPanel';
 import EditorPanel from '@/components/EditorPanel';
-import HomeLayout from '@/components/HomeLayout';
+import HomeLayout, { type HomeLayoutRef } from '@/components/HomeLayout';
 import SlideDeckModal from '@/components/SlideViewer';
 import ErrorDisplay from '@/components/ErrorDisplay';
 import GeneratedSuccess from '@/components/GeneratedSuccess';
+import AppLoader from '@/components/AppLoader';
 import { generateSlides } from '@/services/api';
 import { normalizeSlides } from '@/lib/slides/normalizeSlides';
 import { useSlideDeckStore } from '@/store/useSlideDeckStore';
@@ -18,6 +19,24 @@ import type { TemplateTheme } from '@/constants/templates';
 
 export default function Home() {
   const [currentPrompt, setCurrentPrompt] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [showContent, setShowContent] = useState(false);
+  const homeLayoutRef = useRef<HomeLayoutRef>(null);
+
+  useEffect(() => {
+    // Show loader for 3 seconds
+    const loaderTimer = setTimeout(() => {
+      setIsLoading(false);
+      // Small delay before showing content for smooth transition
+      setTimeout(() => setShowContent(true), 50);
+    }, 3000);
+
+    return () => clearTimeout(loaderTimer);
+  }, []);
+
+  const handleFocusPrompt = () => {
+    homeLayoutRef.current?.focusPrompt();
+  };
   
   // UI state
   const activePanel = useUIStore((state) => state.activePanel);
@@ -74,26 +93,32 @@ export default function Home() {
 
   return (
     <>
-      {/* Sidebar */}
-      <Sidebar />
+      {/* App Loader */}
+      {isLoading && <AppLoader />}
 
-      {/* History Panel */}
-      <HistoryPanel />
+      {/* Main App Content */}
+      <div className={`flex min-h-screen ${showContent ? 'animate-in fade-in duration-700' : 'opacity-0'}`}>
+        {/* Sidebar */}
+        <Sidebar onFocusPrompt={handleFocusPrompt} />
 
-      {/* Viewer Panel */}
-      <ViewerPanel />
+        {/* History Panel */}
+        <HistoryPanel onFocusPrompt={handleFocusPrompt} />
 
-      {/* Editor Panel */}
-      <EditorPanel />
+        {/* Viewer Panel */}
+        <ViewerPanel />
 
-      {/* Main Content Area */}
-      <div
-        className={`flex-1 flex flex-col transition-all duration-300 ${
-          activePanel ? 'ml-96' : 'ml-16'
-        }`}
-      >
+        {/* Editor Panel */}
+        <EditorPanel />
+
+        {/* Main Content Area */}
+        <div
+          className={`flex-1 flex flex-col transition-all duration-300 ${
+            activePanel ? 'ml-96' : 'ml-16'
+          }`}
+        >
         {/* Main Chat Page */}
         <HomeLayout
+          ref={homeLayoutRef}
           onSubmit={handlePromptSubmit}
           isLoading={appState === 'loading'}
         />
@@ -120,6 +145,7 @@ export default function Home() {
           slideDeck={slideDeck}
           onUpdateSlide={handleUpdateSlide}
         />
+        </div>
       </div>
     </>
   );

@@ -179,7 +179,7 @@ export default function SlideViewer({
   };
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="flex flex-col min-h-full">
       <SlideHeader deckTitle={deckTitle} />
 
       {/* Slide Toolbar */}
@@ -199,7 +199,9 @@ export default function SlideViewer({
       />
 
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto p-8">
+      <div 
+        className="flex-1 overflow-y-auto p-8 bg-stone-950/10 relative"
+      >
         <div className="w-full max-w-5xl mx-auto h-full flex items-center flex-col">
           <div
             className={`relative border border-zinc-800 shadow-2xl p-12 w-full min-h-[500px] flex flex-col cursor-pointer transition-all ${

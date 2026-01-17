@@ -44,7 +44,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       outline: 'bg-transparent text-white border-white/30 backdrop-blur-sm hover:bg-white/10 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)]',
       ghost: 'bg-transparent text-white/80 border-transparent hover:bg-white/10 hover:text-white hover:shadow-[0_0_10px_rgba(255,255,255,0.15)]',
       danger: 'bg-red-500/20 text-white border-red-500/30 backdrop-blur-md hover:bg-red-500/30 hover:shadow-[0_0_15px_rgba(239,68,68,0.3)]',
-      icon: 'bg-transparent text-white/70 border-transparent hover:bg-white/10 hover:text-white hover:shadow-[0_0_10px_rgba(255,255,255,0.15)]',
+      icon: 'bg-transparent rounded-tr-2xl text-white/70 border-transparent hover:bg-white/10 hover:text-white hover:shadow-[0_0_10px_rgba(255,255,255,0.15)]',
     };
 
     const baseClasses = `

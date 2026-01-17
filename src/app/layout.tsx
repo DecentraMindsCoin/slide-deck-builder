@@ -33,9 +33,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${rajdhani.variable} antialiased bg-zinc-950`}
       >
-        <div className="flex h-screen">
-          {children}
-        </div>
+        {children}
       </body>
     </html>
   );

@@ -1,4 +1,5 @@
 import { Loader2, ArrowRight } from 'lucide-react';
+import { useRef, useImperativeHandle, forwardRef } from 'react';
 import Button from '@/components/ui/Button';
 
 interface PromptFormProps { 
@@ -8,12 +9,23 @@ interface PromptFormProps {
   onSubmit: (e: React.FormEvent) => void;
 }
 
-export default function PromptForm({ 
+export interface PromptFormRef {
+  focus: () => void;
+}
+
+const PromptForm = forwardRef<PromptFormRef, PromptFormProps>(({ 
   prompt, 
   isLoading, 
   onPromptChange, 
   onSubmit 
-}: PromptFormProps) {
+}, ref) => {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useImperativeHandle(ref, () => ({
+    focus: () => {
+      textareaRef.current?.focus();
+    }
+  }));
   return (
     <div className="h-[70vh] flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-3xl">
@@ -34,6 +46,7 @@ export default function PromptForm({
           {/* Textarea with glassmorphism */}
           <div className="relative">
             <textarea
+              ref={textareaRef}
               id="prompt"
               value={prompt}
               onChange={(e) => onPromptChange(e.target.value)}
@@ -73,4 +86,8 @@ export default function PromptForm({
       </div>
     </div>
   );
-}
+});
+
+PromptForm.displayName = 'PromptForm';
+
+export default PromptForm;

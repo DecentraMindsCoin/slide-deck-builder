@@ -17,7 +17,7 @@ export default function SlideFooter({
   onNext,
 }: SlideFooterProps) {
   return (
-    <footer className="bg-zinc-900 border-t border-zinc-800 px-6 py-3 shrink-0">
+    <footer className="absolute bottom-0 w-full bg-zinc-900/20 backdrop-blur-lg rounded-b-2xl border-t border-zinc-800 px-6 py-3 shrink-0">
       <div className="max-w-5xl mx-auto flex items-center justify-between">
         <Button
           onClick={onPrevious}
