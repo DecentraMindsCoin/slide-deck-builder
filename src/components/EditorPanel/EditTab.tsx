@@ -67,17 +67,8 @@ export default function EditTab() {
     setShowAddMenu(false);
   };
 
+  // Get current style from store
   const currentStyle = getSelectedElementStyle();
-  const [fontSize, setFontSize] = useState(currentStyle?.fontSize || SLIDE_DEFAULTS.FONT_SIZE);
-  const [fontFamily, setFontFamily] = useState(currentStyle?.fontFamily || SLIDE_DEFAULTS.FONT_FAMILY);
-  const [fontWeight, setFontWeight] = useState<'normal' | 'bold'>(currentStyle?.fontWeight || SLIDE_DEFAULTS.FONT_WEIGHT);
-  const [fontStyle, setFontStyle] = useState<'normal' | 'italic'>(currentStyle?.fontStyle || SLIDE_DEFAULTS.FONT_STYLE);
-  const [textDecoration, setTextDecoration] = useState<'none' | 'underline'>(currentStyle?.textDecoration || SLIDE_DEFAULTS.TEXT_DECORATION);
-  const [color, setColor] = useState(currentStyle?.color || SLIDE_DEFAULTS.TEXT_COLOR);
-  const [backgroundColor, setBackgroundColor] = useState(currentStyle?.backgroundColor || SLIDE_DEFAULTS.TRANSPARENT);
-  const [textAlign, setTextAlign] = useState<'left' | 'center' | 'right'>(currentStyle?.textAlign || SLIDE_DEFAULTS.TEXT_ALIGN);
-  const [lineHeight, setLineHeight] = useState(currentStyle?.lineHeight || SLIDE_DEFAULTS.LINE_HEIGHT);
-  const [letterSpacing, setLetterSpacing] = useState(currentStyle?.letterSpacing || SLIDE_DEFAULTS.LETTER_SPACING);
   
   // Slide-level styling
   const updateSlideBackground = useSlideDeckStore((state) => state.updateSlideBackground);
@@ -85,79 +76,27 @@ export default function EditTab() {
   const redoHistory = useSlideDeckStore((state) => state.redoHistory);
   const undoLastStyleChange = useSlideDeckStore((state) => state.undoLastStyleChange);
   const redoLastStyleChange = useSlideDeckStore((state) => state.redoLastStyleChange);
+  
   const getCurrentSlide = () => {
     if (!slideDeck) return null;
     return slideDeck.slides[currentSlideIndex];
   };
-  const [slideBackgroundColor, setSlideBackgroundColor] = useState(
-    getCurrentSlide()?.backgroundColor || SLIDE_DEFAULTS.BACKGROUND_COLOR
-  );
-
-  // Update local state when selection changes
-  useEffect(() => {
-    isInitialLoad.current = true; // Reset flag when selection changes
-    if (selectedElement?.contentIndex === 'slide') {
-      // Load slide background color
-      const currentSlide = getCurrentSlide();
-      setSlideBackgroundColor(currentSlide?.backgroundColor || SLIDE_DEFAULTS.BACKGROUND_COLOR);
-    } else {
-      // Load element styles
-      const style = getSelectedElementStyle();
-      if (style) {
-        setFontSize(style.fontSize || SLIDE_DEFAULTS.FONT_SIZE);
-        setFontFamily(style.fontFamily || SLIDE_DEFAULTS.FONT_FAMILY);
-        setFontWeight(style.fontWeight || SLIDE_DEFAULTS.FONT_WEIGHT);
-        setFontStyle(style.fontStyle || SLIDE_DEFAULTS.FONT_STYLE);
-        setTextDecoration(style.textDecoration || SLIDE_DEFAULTS.TEXT_DECORATION);
-        setColor(style.color || SLIDE_DEFAULTS.TEXT_COLOR);
-        setBackgroundColor(style.backgroundColor || SLIDE_DEFAULTS.TRANSPARENT);
-        setTextAlign(style.textAlign || SLIDE_DEFAULTS.TEXT_ALIGN);
-        setLineHeight(style.lineHeight || SLIDE_DEFAULTS.LINE_HEIGHT);
-        setLetterSpacing(style.letterSpacing || SLIDE_DEFAULTS.LETTER_SPACING);
-      }
-    }
-  }, [selectedElement, currentSlideIndex]);
-
-  // Track if this is the initial load to prevent auto-apply on selection
-  const isInitialLoad = useRef(true);
-
-  // Auto-apply element styles whenever they change
-  useEffect(() => {
-    if (!selectedElement || selectedElement.contentIndex === 'slide') return;
+  
+  // Helper functions to update styles directly in store
+  const handleStyleChange = (styleUpdate: Partial<any>) => {
+    if (!selectedElement) return;
     
-    // Skip auto-apply on initial selection (when styles are loaded from store)
-    if (isInitialLoad.current) {
-      isInitialLoad.current = false;
-      return;
-    }
-    
-    const style = {
-      fontSize,
-      fontFamily,
-      fontWeight,
-      fontStyle,
-      textDecoration,
-      color,
-      backgroundColor,
-      textAlign,
-      lineHeight,
-      letterSpacing,
-    };
-    
-    // Apply title style or element style
     if (selectedElement.contentIndex === 'title') {
-      updateTitleStyle(selectedElement.slideId, style);
+      updateTitleStyle(selectedElement.slideId, styleUpdate);
     } else if (typeof selectedElement.contentIndex === 'number') {
-      updateElementStyle(selectedElement.slideId, selectedElement.contentIndex, style);
+      updateElementStyle(selectedElement.slideId, selectedElement.contentIndex, styleUpdate);
     }
-  }, [fontSize, fontFamily, fontWeight, fontStyle, textDecoration, color, backgroundColor, textAlign, lineHeight, letterSpacing, selectedElement]);
-
-  // Auto-apply slide background when it changes
-  useEffect(() => {
+  };
+  
+  const handleSlideBackgroundChange = (backgroundColor: string) => {
     if (!selectedElement || selectedElement.contentIndex !== 'slide') return;
-    
-    updateSlideBackground(selectedElement.slideId, slideBackgroundColor);
-  }, [slideBackgroundColor]);
+    updateSlideBackground(selectedElement.slideId, backgroundColor);
+  };
 
   return (
     <div className="flex flex-col h-full">
@@ -200,49 +139,49 @@ export default function EditTab() {
         // Slide-level controls
         <div className="flex-1 overflow-y-auto p-4 space-y-6 pb-20">
           <SlideBackgroundControls
-            slideBackgroundColor={slideBackgroundColor}
-            setSlideBackgroundColor={setSlideBackgroundColor}
+            slideBackgroundColor={getCurrentSlide()?.backgroundColor || SLIDE_DEFAULTS.BACKGROUND_COLOR}
+            setSlideBackgroundColor={handleSlideBackgroundChange}
           />
         </div>
       ) : (
         // Element-level controls
         <div className="flex-1 overflow-y-auto p-4 pb-20">
         <FontStyleControls
-          fontFamily={fontFamily}
-          setFontFamily={setFontFamily}
-          fontSize={fontSize}
-          setFontSize={setFontSize}
-          fontWeight={fontWeight}
-          setFontWeight={setFontWeight}
-          fontStyle={fontStyle}
-          setFontStyle={setFontStyle}
-          textDecoration={textDecoration}
-          setTextDecoration={setTextDecoration}
+          fontFamily={currentStyle?.fontFamily || SLIDE_DEFAULTS.FONT_FAMILY}
+          setFontFamily={(fontFamily) => handleStyleChange({ fontFamily })}
+          fontSize={currentStyle?.fontSize || SLIDE_DEFAULTS.FONT_SIZE}
+          setFontSize={(fontSize) => handleStyleChange({ fontSize })}
+          fontWeight={currentStyle?.fontWeight || SLIDE_DEFAULTS.FONT_WEIGHT}
+          setFontWeight={(fontWeight) => handleStyleChange({ fontWeight })}
+          fontStyle={currentStyle?.fontStyle || SLIDE_DEFAULTS.FONT_STYLE}
+          setFontStyle={(fontStyle) => handleStyleChange({ fontStyle })}
+          textDecoration={currentStyle?.textDecoration || SLIDE_DEFAULTS.TEXT_DECORATION}
+          setTextDecoration={(textDecoration) => handleStyleChange({ textDecoration })}
         />
 
         <div className="border-t border-zinc-800/50 my-6" />
 
         <ColorControls
-          color={color}
-          setColor={setColor}
-          backgroundColor={backgroundColor}
-          setBackgroundColor={setBackgroundColor}
+          color={currentStyle?.color || SLIDE_DEFAULTS.TEXT_COLOR}
+          setColor={(color) => handleStyleChange({ color })}
+          backgroundColor={currentStyle?.backgroundColor || SLIDE_DEFAULTS.TRANSPARENT}
+          setBackgroundColor={(backgroundColor) => handleStyleChange({ backgroundColor })}
         />
 
         <div className="border-t border-zinc-800/50 my-6" />
 
         <AlignmentControls
-          textAlign={textAlign}
-          setTextAlign={setTextAlign}
+          textAlign={currentStyle?.textAlign || SLIDE_DEFAULTS.TEXT_ALIGN}
+          setTextAlign={(textAlign) => handleStyleChange({ textAlign })}
         />
 
         <div className="border-t border-zinc-800/50 my-6" />
 
         <SpacingControls
-          lineHeight={lineHeight}
-          setLineHeight={setLineHeight}
-          letterSpacing={letterSpacing}
-          setLetterSpacing={setLetterSpacing}
+          lineHeight={currentStyle?.lineHeight || SLIDE_DEFAULTS.LINE_HEIGHT}
+          setLineHeight={(lineHeight) => handleStyleChange({ lineHeight })}
+          letterSpacing={currentStyle?.letterSpacing || SLIDE_DEFAULTS.LETTER_SPACING}
+          setLetterSpacing={(letterSpacing) => handleStyleChange({ letterSpacing })}
         />
         </div>
       )}

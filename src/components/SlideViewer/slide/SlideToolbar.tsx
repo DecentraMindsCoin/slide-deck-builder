@@ -54,8 +54,8 @@ export default function SlideToolbar({
   const showDeleteButton = hasSelectedContent || hasSelectedTitle || hasSelectedSlide;
   const showFormatButton = hasSelectedContent || hasSelectedTitle || hasSelectedSlide;
   const showUndoRedo = (styleHistory && styleHistory.length > 0) || (redoHistory && redoHistory.length > 0);
-
-  // Get selected element's current style
+  
+  // Get selected element's current style from store
   const getSelectedElementStyle = () => {
     if (!selectedElement || !slideDeck) return null;
     const slide = slideDeck.slides[currentSlideIndex];
@@ -67,84 +67,29 @@ export default function SlideToolbar({
     const content = slide.content[selectedElement.contentIndex as number];
     return content?.style || {};
   };
-
-  const currentStyle = getSelectedElementStyle();
-  
-  // Style state management
-  const [fontSize, setFontSize] = useState(currentStyle?.fontSize || SLIDE_DEFAULTS.FONT_SIZE);
-  const [fontFamily, setFontFamily] = useState(currentStyle?.fontFamily || SLIDE_DEFAULTS.FONT_FAMILY);
-  const [fontWeight, setFontWeight] = useState<'normal' | 'bold'>(currentStyle?.fontWeight || SLIDE_DEFAULTS.FONT_WEIGHT);
-  const [fontStyle, setFontStyle] = useState<'normal' | 'italic'>(currentStyle?.fontStyle || SLIDE_DEFAULTS.FONT_STYLE);
-  const [textDecoration, setTextDecoration] = useState<'none' | 'underline'>(currentStyle?.textDecoration || SLIDE_DEFAULTS.TEXT_DECORATION);
-  const [color, setColor] = useState(currentStyle?.color || SLIDE_DEFAULTS.TEXT_COLOR);
-  const [backgroundColor, setBackgroundColor] = useState(currentStyle?.backgroundColor || SLIDE_DEFAULTS.TRANSPARENT);
-  const [textAlign, setTextAlign] = useState<'left' | 'center' | 'right'>(currentStyle?.textAlign || SLIDE_DEFAULTS.TEXT_ALIGN);
-  const [lineHeight, setLineHeight] = useState(currentStyle?.lineHeight || SLIDE_DEFAULTS.LINE_HEIGHT);
-  const [letterSpacing, setLetterSpacing] = useState(currentStyle?.letterSpacing || SLIDE_DEFAULTS.LETTER_SPACING);
   
   const getCurrentSlide = () => {
     if (!slideDeck) return null;
     return slideDeck.slides[currentSlideIndex];
   };
-  const [slideBackgroundColor, setSlideBackgroundColor] = useState(
-    getCurrentSlide()?.backgroundColor || SLIDE_DEFAULTS.BACKGROUND_COLOR
-  );
-
-  // Update local state when selection changes
-  const isInitialLoad = useRef(true);
-  const skipNextUpdate = useRef(false);
   
-  useEffect(() => {
-    // Set flag to skip the next auto-apply update
-    skipNextUpdate.current = true;
-    
-    if (selectedElement?.contentIndex === 'slide') {
-      const slide = getCurrentSlide();
-      setSlideBackgroundColor(slide?.backgroundColor || SLIDE_DEFAULTS.BACKGROUND_COLOR);
-    } else {
-      const style = getSelectedElementStyle();
-      if (style) {
-        setFontSize(style.fontSize || SLIDE_DEFAULTS.FONT_SIZE);
-        setFontFamily(style.fontFamily || SLIDE_DEFAULTS.FONT_FAMILY);
-        setFontWeight(style.fontWeight || SLIDE_DEFAULTS.FONT_WEIGHT);
-        setFontStyle(style.fontStyle || SLIDE_DEFAULTS.FONT_STYLE);
-        setTextDecoration(style.textDecoration || SLIDE_DEFAULTS.TEXT_DECORATION);
-        setColor(style.color || SLIDE_DEFAULTS.TEXT_COLOR);
-        setBackgroundColor(style.backgroundColor || SLIDE_DEFAULTS.TRANSPARENT);
-        setTextAlign(style.textAlign || SLIDE_DEFAULTS.TEXT_ALIGN);
-        setLineHeight(style.lineHeight || SLIDE_DEFAULTS.LINE_HEIGHT);
-        setLetterSpacing(style.letterSpacing || SLIDE_DEFAULTS.LETTER_SPACING);
-      }
-    }
-  }, [selectedElement, currentSlideIndex]);
-
-  // Auto-apply element styles
-  useEffect(() => {
-    if (!selectedElement || selectedElement.contentIndex === 'slide') return;
-    
-    // Skip the first update after loading styles to prevent creating history
-    if (skipNextUpdate.current) {
-      skipNextUpdate.current = false;
-      return;
-    }
-    
-    const style = {
-      fontSize, fontFamily, fontWeight, fontStyle, textDecoration,
-      color, backgroundColor, textAlign, lineHeight, letterSpacing,
-    };
+  const currentStyle = getSelectedElementStyle();
+  
+  // Helper functions to update styles directly in store
+  const handleStyleChange = (styleUpdate: Partial<any>) => {
+    if (!selectedElement) return;
     
     if (selectedElement.contentIndex === 'title') {
-      updateTitleStyle(selectedElement.slideId, style);
+      updateTitleStyle(selectedElement.slideId, styleUpdate);
     } else if (typeof selectedElement.contentIndex === 'number') {
-      updateElementStyle(selectedElement.slideId, selectedElement.contentIndex, style);
+      updateElementStyle(selectedElement.slideId, selectedElement.contentIndex, styleUpdate);
     }
-  }, [fontSize, fontFamily, fontWeight, fontStyle, textDecoration, color, backgroundColor, textAlign, lineHeight, letterSpacing]);
-
-  // Auto-apply slide background
-  useEffect(() => {
+  };
+  
+  const handleSlideBackgroundChange = (backgroundColor: string) => {
     if (!selectedElement || selectedElement.contentIndex !== 'slide') return;
-    updateSlideBackground(selectedElement.slideId, slideBackgroundColor);
-  }, [slideBackgroundColor]);
+    updateSlideBackground(selectedElement.slideId, backgroundColor);
+  };
 
   // Close popovers when clicking outside
   useEffect(() => {
@@ -210,28 +155,28 @@ export default function SlideToolbar({
               
               {showStyleMenu && (
                 <StyleControlsPopover
-                  fontFamily={fontFamily}
-                  setFontFamily={setFontFamily}
-                  fontSize={fontSize}
-                  setFontSize={setFontSize}
-                  fontWeight={fontWeight}
-                  setFontWeight={setFontWeight}
-                  fontStyle={fontStyle}
-                  setFontStyle={setFontStyle}
-                  textDecoration={textDecoration}
-                  setTextDecoration={setTextDecoration}
-                  color={color}
-                  setColor={setColor}
-                  backgroundColor={backgroundColor}
-                  setBackgroundColor={setBackgroundColor}
-                  textAlign={textAlign}
-                  setTextAlign={setTextAlign}
-                  lineHeight={lineHeight}
-                  setLineHeight={setLineHeight}
-                  letterSpacing={letterSpacing}
-                  setLetterSpacing={setLetterSpacing}
-                  slideBackgroundColor={slideBackgroundColor}
-                  setSlideBackgroundColor={setSlideBackgroundColor}
+                  fontFamily={currentStyle?.fontFamily || SLIDE_DEFAULTS.FONT_FAMILY}
+                  setFontFamily={(fontFamily) => handleStyleChange({ fontFamily })}
+                  fontSize={currentStyle?.fontSize || SLIDE_DEFAULTS.FONT_SIZE}
+                  setFontSize={(fontSize) => handleStyleChange({ fontSize })}
+                  fontWeight={currentStyle?.fontWeight || SLIDE_DEFAULTS.FONT_WEIGHT}
+                  setFontWeight={(fontWeight) => handleStyleChange({ fontWeight })}
+                  fontStyle={currentStyle?.fontStyle || SLIDE_DEFAULTS.FONT_STYLE}
+                  setFontStyle={(fontStyle) => handleStyleChange({ fontStyle })}
+                  textDecoration={currentStyle?.textDecoration || SLIDE_DEFAULTS.TEXT_DECORATION}
+                  setTextDecoration={(textDecoration) => handleStyleChange({ textDecoration })}
+                  color={currentStyle?.color || SLIDE_DEFAULTS.TEXT_COLOR}
+                  setColor={(color) => handleStyleChange({ color })}
+                  backgroundColor={currentStyle?.backgroundColor || SLIDE_DEFAULTS.TRANSPARENT}
+                  setBackgroundColor={(backgroundColor) => handleStyleChange({ backgroundColor })}
+                  textAlign={currentStyle?.textAlign || SLIDE_DEFAULTS.TEXT_ALIGN}
+                  setTextAlign={(textAlign) => handleStyleChange({ textAlign })}
+                  lineHeight={currentStyle?.lineHeight || SLIDE_DEFAULTS.LINE_HEIGHT}
+                  setLineHeight={(lineHeight) => handleStyleChange({ lineHeight })}
+                  letterSpacing={currentStyle?.letterSpacing || SLIDE_DEFAULTS.LETTER_SPACING}
+                  setLetterSpacing={(letterSpacing) => handleStyleChange({ letterSpacing })}
+                  slideBackgroundColor={getCurrentSlide()?.backgroundColor || SLIDE_DEFAULTS.BACKGROUND_COLOR}
+                  setSlideBackgroundColor={handleSlideBackgroundChange}
                   isSlideSelected={!!hasSelectedSlide}
                 />
               )}

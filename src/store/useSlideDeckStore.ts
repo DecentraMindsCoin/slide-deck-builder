@@ -37,13 +37,16 @@ export const useSlideDeckStore = create<SlideDeckState>()(
               // Capture previous state for undo
               const slide = state.slideDeck.slides.find((s) => s.id === slideId);
               const previousStyle = slide?.content[contentIndex]?.style;
+              
+              // Merge to get the complete new style
+              const mergedStyle = { ...previousStyle, ...style };
 
               const updatedSlides = state.slideDeck.slides.map((slide) => {
                 if (slide.id !== slideId) return slide;
                 
                 const updatedContent = slide.content.map((item, idx) => {
                   if (idx !== contentIndex) return item;
-                  return { ...item, style: { ...item.style, ...style } };
+                  return { ...item, style: mergedStyle };
                 });
                 
                 return { ...slide, content: updatedContent };
@@ -63,7 +66,7 @@ export const useSlideDeckStore = create<SlideDeckState>()(
                   )
                 : state.history;
 
-              // Add to style history (keep last 10)
+              // Add to style history (keep last 10) - save complete merged style
               const newStyleHistory: StyleHistoryEntry[] = [
                 ...state.styleHistory.slice(-9),
                 {
@@ -72,7 +75,7 @@ export const useSlideDeckStore = create<SlideDeckState>()(
                   slideId,
                   contentIndex,
                   previousStyle,
-                  currentStyle: style,
+                  currentStyle: mergedStyle,
                 },
               ];
 
@@ -95,10 +98,13 @@ export const useSlideDeckStore = create<SlideDeckState>()(
               // Capture previous state for undo
               const slide = state.slideDeck.slides.find((s) => s.id === slideId);
               const previousStyle = slide?.titleStyle;
+              
+              // Merge to get the complete new style
+              const mergedStyle = { ...previousStyle, ...style };
 
               const updatedSlides = state.slideDeck.slides.map((slide) => {
                 if (slide.id !== slideId) return slide;
-                return { ...slide, titleStyle: { ...slide.titleStyle, ...style } };
+                return { ...slide, titleStyle: mergedStyle };
               });
 
               const updatedDeck = {
@@ -115,7 +121,7 @@ export const useSlideDeckStore = create<SlideDeckState>()(
                   )
                 : state.history;
 
-              // Add to style history (keep last 10)
+              // Add to style history (keep last 10) - save complete merged style
               const newStyleHistory: StyleHistoryEntry[] = [
                 ...state.styleHistory.slice(-9),
                 {
@@ -124,7 +130,7 @@ export const useSlideDeckStore = create<SlideDeckState>()(
                   slideId,
                   contentIndex: 'title',
                   previousStyle,
-                  currentStyle: style,
+                  currentStyle: mergedStyle,
                 },
               ];
 
