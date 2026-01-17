@@ -20,6 +20,7 @@ export interface SlideViewerProps {
     content: SlideContent[],
   ) => void;
   onReset: () => void;
+  onRegenerate?: () => void;
   currentSlideIndex?: number;
   onSlideChange?: (index: number) => void;
 }
@@ -29,6 +30,7 @@ export default function SlideViewer({
   slides,
   onUpdateSlide,
   onReset,
+  onRegenerate,
   currentSlideIndex,
   onSlideChange,
 }: SlideViewerProps) {
@@ -195,6 +197,7 @@ export default function SlideViewer({
         }
         onDuplicateElement={handleDuplicateElement}
         onExport={handleExportToPPTX}
+        onRegenerate={onRegenerate}
         selectedElement={selectedElement}
       />
 

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Plus, Trash2, Copy, Download, Undo, Redo, Palette } from 'lucide-react';
+import { Plus, Trash2, Copy, Download, Undo, Redo, Palette, RefreshCw } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import AddElementPopover from '@/components/AddElementPopover';
 import StyleControlsPopover from '@/components/StyleControlsPopover';
@@ -18,6 +18,7 @@ interface SlideToolbarProps {
   onDelete?: () => void;
   onDuplicateElement?: () => void;
   onExport?: () => void;
+  onRegenerate?: () => void;
   selectedElement?: SelectedElement | null;
 }
 
@@ -30,6 +31,7 @@ export default function SlideToolbar({
   onDelete,
   onDuplicateElement,
   onExport,
+  onRegenerate,
   selectedElement,
 }: SlideToolbarProps) {
   const [showAddMenu, setShowAddMenu] = useState(false);
@@ -276,10 +278,22 @@ export default function SlideToolbar({
         )}
       </div>
 
-      {/* Export Button - Far Right */}
-      <div className="flex items-center gap-1">
+      {/* Right Side Actions */}
+      <div className="flex items-center gap-2">
+        {/* Regenerate Button */}
+        {onRegenerate && (
+          <Button
+            onClick={onRegenerate}
+            variant="secondary"
+            icon={<RefreshCw className="w-4 h-4" />}
+            size="sm"
+            title="Regenerate Deck"
+          >
+            Regenerate
+          </Button>
+        )}
         
-        {/* Export Button - Far Right */}
+        {/* Export Button */}
         {onExport && (
           <Button
             onClick={onExport}

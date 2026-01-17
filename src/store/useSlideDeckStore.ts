@@ -17,6 +17,7 @@ export const useSlideDeckStore = create<SlideDeckState>()(
         selectedElement: null,
         styleHistory: [],
         redoHistory: [],
+        isLoadingDeck: false,
 
         // Actions
         setAppState: (appState) => set({ appState }, false, 'setAppState'),
@@ -352,7 +353,20 @@ export const useSlideDeckStore = create<SlideDeckState>()(
             'addToHistory'
           ),
         
-        loadDeckFromHistory: (id) =>
+        updateHistoryDeck: (id, deck) =>
+          set(
+            (state) => ({
+              history: state.history.map((item) =>
+                item.id === id ? { ...item, deck } : item
+              ),
+              slideDeck: deck,
+            }),
+            false,
+            'updateHistoryDeck'
+          ),
+        
+        loadDeckFromHistory: (id) => {
+          // Set loading flag and load deck
           set(
             (state) => {
               const item = state.history.find((h) => h.id === id);
@@ -361,11 +375,18 @@ export const useSlideDeckStore = create<SlideDeckState>()(
                 slideDeck: item.deck,
                 currentDeckId: id,
                 appState: 'viewing' as AppState,
+                isLoadingDeck: true,
               };
             },
             false,
             'loadDeckFromHistory'
-          ),
+          );
+          
+          // Clear loading flag after 2 seconds (matching the modal loader duration)
+          setTimeout(() => {
+            set({ isLoadingDeck: false }, false, 'loadDeckFromHistory:complete');
+          }, 2000);
+        },
         
         deleteDeckFromHistory: (id) =>
           set(

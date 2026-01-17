@@ -6,7 +6,11 @@ import { useUIStore } from '@/store/useUIStore';
 import { useSlideDeckStore } from '@/store/useSlideDeckStore';
 import PreviewTab from '@/components/ViewerPanel/PreviewTab';
 
-export default function ViewerPanel() {
+interface ViewerPanelProps {
+  isRegenerating?: boolean;
+}
+
+export default function ViewerPanel({ isRegenerating = false }: ViewerPanelProps) {
   const activePanel = useUIStore((state) => state.activePanel);
   const togglePanel = useUIStore((state) => state.togglePanel);
   const isOpen = activePanel === 'viewer';
@@ -36,7 +40,12 @@ export default function ViewerPanel() {
 
         {/* PreviewTab with its own header and scrollable content */}
         <div className="flex-1 overflow-hidden">
-          <PreviewTab slides={slides} currentSlideIndex={currentSlideIndex} onSlideSelect={setCurrentSlideIndex} />
+          <PreviewTab 
+            slides={slides} 
+            currentSlideIndex={currentSlideIndex} 
+            onSlideSelect={setCurrentSlideIndex}
+            isRegenerating={isRegenerating}
+          />
         </div>
       </div>
     </Panel>

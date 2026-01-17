@@ -45,6 +45,7 @@ export interface SlideDeckState {
   selectedElement: SelectedElement | null;
   styleHistory: StyleHistoryEntry[];
   redoHistory: StyleHistoryEntry[];
+  isLoadingDeck: boolean;
   
   // Actions
   setAppState: (state: AppState) => void;
@@ -62,6 +63,7 @@ export interface SlideDeckState {
   redoLastStyleChange: () => void;
   clearStyleHistory: () => void;
   addToHistory: (deck: SlideDeck, prompt: string) => void;
+  updateHistoryDeck: (id: string, deck: SlideDeck) => void;
   loadDeckFromHistory: (id: string) => void;
   deleteDeckFromHistory: (id: string) => void;
   reset: () => void;

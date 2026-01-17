@@ -8,9 +8,10 @@ interface PreviewTabProps {
   slides: Slide[];
   currentSlideIndex: number;
   onSlideSelect: (index: number) => void;
+  isRegenerating?: boolean;
 }
 
-export default function PreviewTab({ slides, currentSlideIndex, onSlideSelect }: PreviewTabProps) {
+export default function PreviewTab({ slides, currentSlideIndex, onSlideSelect, isRegenerating = false }: PreviewTabProps) {
   const addSlide = useSlideDeckStore((state) => state.addSlide);
   const deleteSlide = useSlideDeckStore((state) => state.deleteSlide);
 
@@ -50,7 +51,18 @@ export default function PreviewTab({ slides, currentSlideIndex, onSlideSelect }:
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full relative">
+      {/* Regeneration Overlay */}
+      {isRegenerating && (
+        <div className="absolute inset-0 bg-zinc-950/50 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="text-center">
+            <div className="text-zinc-400 text-sm font-medium">
+              Regenerating slides...
+            </div>
+          </div>
+        </div>
+      )}
+      
       {/* Fixed Header */}
       <div className="shrink-0 p-4 pb-0 border-b border-zinc-800">
         <div className="flex items-center justify-between mb-4">

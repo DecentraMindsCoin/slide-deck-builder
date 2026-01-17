@@ -52,7 +52,6 @@ slide-deck-builder/
 │   │   ├── EditorPanel/              # Style editor panel
 │   │   │   ├── index.tsx             # Panel wrapper
 │   │   │   ├── EditTab.tsx           # Main editor UI
-│   │   │   ├── PreviewTab.tsx        # Slide preview list
 │   │   │   └── controls/             # Style controls
 │   │   │       ├── FontStyleControls.tsx
 │   │   │       ├── ColorControls.tsx
@@ -66,7 +65,8 @@ slide-deck-builder/
 │   │   │   └── ConfirmDeleteModal.tsx # Delete confirmation
 │   │   │
 │   │   ├── ViewerPanel/              # Slide preview panel
-│   │   │   └── index.tsx             # Thumbnail grid
+│   │   │   ├── index.tsx             # Thumbnail grid
+│   │   │   └── PreviewTab.tsx        # Slide preview list
 │   │   │
 │   │   ├── ExploreTemplates/         # Template gallery
 │   │   │   └── index.tsx             # Template cards
@@ -383,7 +383,7 @@ appState: 'input' | 'loading' | 'generated' | 'viewing' | 'error'
 
 ### Panel Navigation
 
-**Panel System**: Panels slide in from the left, overlaying the main content.
+**Panel System**: Panels slide in from the left, shifting over the main content.
 
 **Panel States**:
 ```typescript

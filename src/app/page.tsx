@@ -19,6 +19,7 @@ import type { TemplateTheme } from '@/constants/templates';
 
 export default function Home() {
   const [currentPrompt, setCurrentPrompt] = useState('');
+  const [isRegenerating, setIsRegenerating] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [showContent, setShowContent] = useState(false);
   const homeLayoutRef = useRef<HomeLayoutRef>(null);
@@ -45,11 +46,14 @@ export default function Home() {
   const appState = useSlideDeckStore((state) => state.appState);
   const slideDeck = useSlideDeckStore((state) => state.slideDeck);
   const error = useSlideDeckStore((state) => state.error);
+  const history = useSlideDeckStore((state) => state.history);
+  const currentDeckId = useSlideDeckStore((state) => state.currentDeckId);
   const setAppState = useSlideDeckStore((state) => state.setAppState);
   const setSlideDeck = useSlideDeckStore((state) => state.setSlideDeck);
   const setError = useSlideDeckStore((state) => state.setError);
   const updateSlide = useSlideDeckStore((state) => state.updateSlide);
   const addToHistory = useSlideDeckStore((state) => state.addToHistory);
+  const updateHistoryDeck = useSlideDeckStore((state) => state.updateHistoryDeck);
   const reset = useSlideDeckStore((state) => state.reset);
 
   const handlePromptSubmit = async (prompt: string, theme?: TemplateTheme) => {
@@ -91,10 +95,51 @@ export default function Home() {
     setAppState('viewing');
   };
 
+  const handleRegenerate = async () => {
+    // Find the current deck in history to get its original prompt
+    const currentDeck = history.find((item) => item.id === currentDeckId);
+    if (!currentDeck || !currentDeckId) {
+      setError('Cannot regenerate: original prompt not found');
+      return;
+    }
+
+    // Keep modal open, show regenerating state
+    setIsRegenerating(true);
+    setError('');
+
+    try {
+      const response = await generateSlides(currentDeck.prompt);
+      if (response.success) {
+        const normalizedDeck = normalizeSlides(response.data);
+        // Replace the existing deck in history instead of adding new one
+        updateHistoryDeck(currentDeckId, normalizedDeck);
+      } else {
+        throw new Error('Failed to regenerate slides');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An unexpected error occurred');
+      setAppState('error');
+    } finally {
+      setIsRegenerating(false);
+    }
+  };
+
   return (
     <>
       {/* App Loader */}
       {isLoading && <AppLoader />}
+
+      {/* Fixed Background Image */}
+      <div 
+        className="fixed inset-0 -z-10 bg-zinc-950"
+        style={{
+          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url("/BACKGROUND.jpg")`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          backgroundAttachment: 'fixed'
+        }}
+      />
 
       {/* Main App Content */}
       <div className={`flex min-h-screen ${showContent ? 'animate-in fade-in duration-700' : 'opacity-0'}`}>
@@ -105,7 +150,7 @@ export default function Home() {
         <HistoryPanel onFocusPrompt={handleFocusPrompt} />
 
         {/* Viewer Panel */}
-        <ViewerPanel />
+        <ViewerPanel isRegenerating={isRegenerating} />
 
         {/* Editor Panel */}
         <EditorPanel />
@@ -144,6 +189,8 @@ export default function Home() {
           onClose={handleCloseModal}
           slideDeck={slideDeck}
           onUpdateSlide={handleUpdateSlide}
+          onRegenerate={handleRegenerate}
+          isRegenerating={isRegenerating}
         />
         </div>
       </div>

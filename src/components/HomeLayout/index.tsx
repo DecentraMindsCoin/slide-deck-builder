@@ -57,13 +57,7 @@ const HomeLayout = forwardRef<HomeLayoutRef, HomeLayoutProps>(({ onSubmit, isLoa
   return (
     <div 
       ref={containerRef} 
-      className="h-screen overflow-y-auto bg-zinc-950 relative"
-      style={{
-        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url("/BACKGROUND.jpg")`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-      }}
+      className="h-screen overflow-y-auto relative"
     >
       <PromptForm
         ref={promptFormRef}

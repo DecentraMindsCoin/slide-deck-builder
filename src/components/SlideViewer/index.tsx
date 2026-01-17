@@ -14,6 +14,8 @@ interface SlideDeckModalProps {
   onClose: () => void;
   slideDeck: SlideDeck | null;
   onUpdateSlide: (slideId: string, title: string, content: SlideContent[]) => void;
+  onRegenerate?: () => void;
+  isRegenerating?: boolean;
 }
 
 export default function SlideDeckModal({
@@ -21,10 +23,13 @@ export default function SlideDeckModal({
   onClose,
   slideDeck,
   onUpdateSlide,
+  onRegenerate,
+  isRegenerating = false,
 }: SlideDeckModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const currentSlideIndex = useSlideDeckStore((state) => state.currentSlideIndex);
   const setCurrentSlideIndex = useSlideDeckStore((state) => state.setCurrentSlideIndex);
+  const isLoadingDeck = useSlideDeckStore((state) => state.isLoadingDeck);
   const activePanel = useUIStore((state) => state.activePanel);
   const setActivePanel = useUIStore((state) => state.setActivePanel);
 
@@ -40,6 +45,16 @@ export default function SlideDeckModal({
       setIsLoading(false);
     }
   }, [isOpen, slideDeck?.deckTitle]);
+
+  // Show loader during regeneration
+  useEffect(() => {
+    if (isRegenerating) {
+      setIsLoading(true);
+    } else {
+      // Clear loading when regeneration completes
+      setIsLoading(false);
+    }
+  }, [isRegenerating]);
 
   // Auto-open EditorPanel when modal opens, close when modal closes
   useEffect(() => {
@@ -75,11 +90,12 @@ export default function SlideDeckModal({
     },
   });
 
-  if (!slideDeck) return null;
+  // Don't close modal if regenerating
+  if (!slideDeck && !isRegenerating) return null;
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} maxWidth="full" activePanel={activePanel}>
-      {isLoading ? (
+      {isLoading || isRegenerating || isLoadingDeck ? (
         <div className="flex items-center justify-center h-[80vh] bg-zinc-950">
           <div className="flex flex-col items-center gap-6">
             {/* Animated loader */}
@@ -91,26 +107,27 @@ export default function SlideDeckModal({
             {/* Loading text */}
             <div className="flex flex-col items-center gap-2">
               <h3 className="font-rajdhani text-xl font-bold text-white uppercase tracking-tight">
-                Loading Slide Deck
+                {isRegenerating ? 'Regenerating Slide Deck' : 'Loading Slide Deck'}
               </h3>
               <p className="text-zinc-400 text-sm animate-pulse">
-                Preparing your presentation...
+                {isRegenerating ? 'Creating fresh content...' : 'Preparing your presentation...'}
               </p>
             </div>
           </div>
         </div>
-      ) : (
+      ) : slideDeck ? (
         <div className="animate-in fade-in duration-500">
           <SlideViewer
             deckTitle={slideDeck.deckTitle}
             slides={slideDeck.slides}
             onUpdateSlide={onUpdateSlide}
             onReset={onClose}
+            onRegenerate={onRegenerate}
             currentSlideIndex={currentSlideIndex}
             onSlideChange={setCurrentSlideIndex}
           />
         </div>
-      )}
+      ) : null}
     </Modal>
   );
 }

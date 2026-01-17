@@ -79,7 +79,7 @@ const PromptForm = forwardRef<PromptFormRef, PromptFormProps>(({
           {isLoading && (
             <div className="flex items-center justify-center gap-2 text-white/80 mt-4 bg-white/5 backdrop-blur-md border border-white/10 rounded-xl py-3 px-6">
               <Loader2 className="w-4 h-4 animate-spin" />
-              <span className="text-sm font-semibold">Generating your perfect slide deck...</span>
+              <span className="text-sm font-semibold">Generating your custom slide deck...</span>
             </div>
           )}
         </form>
