@@ -45,8 +45,8 @@ export default function HistoryPanel() {
           <div className="shrink-0">
             <div className="border-b border-zinc-800 p-4">
               <div className="flex items-center gap-2">
-                <History className="w-5 h-5 text-blue-500" />
-                <h2 className="text-lg font-semibold text-white">Generation History</h2>
+                <History className="w-5 h-5 text-bg-white/10" />
+                <h2 className="font-rajdhani text-lg font-semibold text-white uppercase tracking-tight">Generation History</h2>
               </div>
             </div>
 

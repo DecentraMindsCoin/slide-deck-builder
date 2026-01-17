@@ -28,13 +28,13 @@ export default function Panel({
   width = 'md',
   children,
 }: PanelProps) {
-  if (!isOpen) return null;
-
   const zIndex = panelType === 'editor' || panelType === 'viewer' ? 'z-50' : 'z-20';
 
   return (
     <div
-      className={`fixed left-16 top-0 h-full ${widthClasses[width]} bg-zinc-900 border-r border-zinc-800 flex flex-col ${zIndex} transition-all duration-300`}
+      className={`fixed left-16 top-0 h-full ${widthClasses[width]} bg-zinc-900 border-r border-zinc-800 flex flex-col ${zIndex} transition-all duration-500 ease-in-out ${
+        isOpen ? 'translate-x-0 opacity-100' : '-translate-x-full opacity-0 pointer-events-none'
+      }`}
     >
       {/* Universal Close Button - Top Right Corner */}
       <Button
@@ -50,7 +50,7 @@ export default function Panel({
       {/* Optional Title */}
       {title && (
         <div className="p-4 border-b border-zinc-800 shrink-0">
-          <h2 className="text-white text-lg font-semibold">{title}</h2>
+          <h2 className="font-rajdhani text-white text-lg font-semibold uppercase tracking-tight">{title}</h2>
         </div>
       )}
 

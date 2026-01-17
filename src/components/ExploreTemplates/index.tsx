@@ -11,7 +11,7 @@ export default function ExploreTemplates({ onSelectTemplate }: ExploreTemplatesP
   return (
     <div className="w-full max-w-7xl mx-auto px-4 py-12 -mt-12">
       <div className="mb-8">
-        <h2 className="text-3xl font-bold text-white mb-2">Explore Templates</h2>
+        <h2 className="font-rajdhani text-3xl font-bold text-white mb-2 uppercase tracking-tight">Explore Templates</h2>
         <p className="text-zinc-400">Start with a professionally designed template</p>
       </div>
 
@@ -30,7 +30,7 @@ export default function ExploreTemplates({ onSelectTemplate }: ExploreTemplatesP
             {/* Content */}
             <div className="space-y-4">
               <div>
-                <h3 className="text-xl font-bold text-white mb-2">{template.title}</h3>
+                <h3 className="font-rajdhani text-xl font-bold text-white mb-2 uppercase tracking-tight">{template.title}</h3>
                 <p className="text-zinc-300 text-sm leading-relaxed">{template.description}</p>
               </div>
 

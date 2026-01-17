@@ -13,7 +13,7 @@ export default function ColorControls({
 }: ColorControlsProps) {
   return (
     <div>
-      <div className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-3">
+      <div className="font-rajdhani text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-3">
         Colors
       </div>
       <div className="space-y-3">

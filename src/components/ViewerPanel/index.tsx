@@ -29,8 +29,8 @@ export default function ViewerPanel() {
         {/* Fixed Header */}
         <div className="shrink-0 border-b border-zinc-800 p-4">
           <div className="flex items-center gap-2">
-            <Eye className="w-5 h-5 text-blue-500" />
-            <h2 className="text-lg font-semibold text-white">Slide Viewer</h2>
+            <Eye className="w-5 h-5 text-bg-white/10" />
+            <h2 className="font-rajdhani text-lg font-semibold text-white uppercase tracking-tight">Slide Viewer</h2>
           </div>
         </div>
 

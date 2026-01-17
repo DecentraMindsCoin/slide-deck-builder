@@ -38,10 +38,10 @@ export default function HistoryList({
       {history.map((item) => (
         <div
           key={item.id}
-          className={`group p-3 rounded-lg cursor-pointer transition-colors ${
+          className={`group p-3 rounded-lg border cursor-pointer transition-all ${
             currentDeckId === item.id
-              ? 'bg-blue-600/20 border border-blue-600/50'
-              : 'bg-zinc-800/50 hover:bg-zinc-800 border border-transparent'
+              ? 'bg-white/10 border-white/50'
+              : 'bg-zinc-800/50 border-zinc-700 hover:border-zinc-600 hover:bg-zinc-800'
           }`}
           onClick={() => onLoadDeck(item.id)}
         >
@@ -49,7 +49,7 @@ export default function HistoryList({
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
                 <FileText className="w-4 h-4 text-zinc-400 shrink-0" />
-                <span className="text-white text-sm font-medium truncate">
+                <span className="font-rajdhani text-white text-sm font-medium truncate uppercase">
                   {item.deck.deckTitle}
                 </span>
               </div>

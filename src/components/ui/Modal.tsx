@@ -83,15 +83,15 @@ export default function Modal({
 
       {/* Modal Content */}
       <div
-        className={`relative bg-zinc-900 rounded-lg shadow-2xl border border-zinc-800 ${maxWidthClasses[maxWidth]} w-full ${
+        className={`relative bg-zinc-900 rounded-2xl shadow-2xl border border-zinc-800 ${maxWidthClasses[maxWidth]} w-full ${
           height === 'full' ? 'h-[90vh]' : 'max-h-[90vh]'
         } flex flex-col`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         {title && (
-          <div className="flex items-center justify-between p-6 border-b border-zinc-800">
-            <h2 className="text-2xl font-bold text-white">{title}</h2>
+          <div className="flex items-center justify-between p-6 border-b border-zinc-800 bg-zinc-900/50 backdrop-blur-sm">
+            <h2 className="font-rajdhani text-2xl font-bold text-white uppercase tracking-tight">{title}</h2>
             <Button
               onClick={onClose}
               variant="icon"
@@ -112,8 +112,8 @@ export default function Modal({
           />
         )}
 
-        {/* Body */}
-        <div className="overflow-y-auto flex-1">{children}</div>
+        {/* Body - Separated with padding and subtle background */}
+        <div className="overflow-y-auto flex-1 bg-zinc-950/30 m-4 rounded-2xl border border-zinc-800">{children}</div>
       </div>
     </div>
   );

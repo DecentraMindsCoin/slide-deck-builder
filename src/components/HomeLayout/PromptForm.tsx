@@ -17,21 +17,28 @@ export default function PromptForm({
   return (
     <div className="h-[70vh] flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-3xl">
+        {/* Title and Description */}
         <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold text-white mb-4">
-            Dunedain AI Slides
+          <h1 className="text-6xl font-bold mb-4">
+            <span className="font-rajdhani text-white font-black tracking-tight uppercase">
+              Dunedain AI Slides
+            </span>
           </h1>
+          <p className="text-lg text-white/70 font-medium max-w-2xl mx-auto">
+            Transform your ideas into stunning presentations instantly. 
+            Powered by AI to create professional slide decks in seconds.
+          </p>
         </div>
 
         <form onSubmit={onSubmit} className="space-y-4">
-          {/* Textarea with buttons */}
+          {/* Textarea with glassmorphism */}
           <div className="relative">
             <textarea
               id="prompt"
               value={prompt}
               onChange={(e) => onPromptChange(e.target.value)}
               placeholder="Enter your presentation topic and requirements..."
-              className="w-full px-6 py-4 pb-16 bg-zinc-800 border border-zinc-700 rounded-2xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-zinc-600 focus:border-zinc-600 resize-none transition-all"
+              className="w-full px-6 py-4 pb-16 bg-white/5 border border-white/20 rounded-2xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-white/30 resize-none transition-all backdrop-blur-md shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:bg-white/10 hover:shadow-[0_0_20px_rgba(255,255,255,0.15)]"
               rows={6}
               disabled={isLoading}
             />
@@ -50,16 +57,16 @@ export default function PromptForm({
                   <ArrowRight className="w-5 h-5" />
                 )}
                 title="Generate slides"
-                className="shadow-lg hover:shadow-xl transition-shadow"
+                className="shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.4)]"
               />
             </div>
           </div>
           
-          {/* Loading message */}
+          {/* Loading message with glassmorphism */}
           {isLoading && (
-            <div className="flex items-center justify-center gap-2 text-zinc-400 mt-4">
+            <div className="flex items-center justify-center gap-2 text-white/80 mt-4 bg-white/5 backdrop-blur-md border border-white/10 rounded-xl py-3 px-6">
               <Loader2 className="w-4 h-4 animate-spin" />
-              <span className="text-sm font-medium">Generating your perfect slide deck...</span>
+              <span className="text-sm font-semibold">Generating your perfect slide deck...</span>
             </div>
           )}
         </form>

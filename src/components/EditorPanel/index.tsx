@@ -24,8 +24,8 @@ export default function EditorPanel() {
       {/* Header */}
       <div className="border-b border-zinc-800 shrink-0 p-4">
         <div className="flex items-center gap-2">
-          <Settings className="w-5 h-5 text-blue-500" />
-          <h2 className="text-lg font-semibold text-white">Style Editor</h2>
+          <Settings className="w-5 h-5 text-bg-white/10" />
+          <h2 className="font-rajdhani text-lg font-semibold text-white uppercase tracking-tight">Style Editor</h2>
         </div>
       </div>
 

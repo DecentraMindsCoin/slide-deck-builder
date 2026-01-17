@@ -77,7 +77,7 @@ export default function PreviewTab({ slides, currentSlideIndex, onSlideSelect }:
           onClick={() => onSlideSelect(index)}
           className={`w-full text-left rounded-lg border transition-all group relative cursor-pointer ${
             index === currentSlideIndex
-              ? 'bg-blue-600/20 border-blue-500'
+              ? 'bg-white/10 border-white/50'
               : 'bg-zinc-800/50 border-zinc-700 hover:border-zinc-600 hover:bg-zinc-800'
           }`}
         >
@@ -85,7 +85,7 @@ export default function PreviewTab({ slides, currentSlideIndex, onSlideSelect }:
           <div className="flex items-start gap-3 p-3">
             <div className={`shrink-0 w-8 h-8 rounded flex items-center justify-center text-xs font-bold ${
               index === currentSlideIndex
-                ? 'bg-blue-600 text-white'
+                ? 'bg-white/10 text-white'
                 : 'bg-zinc-700 text-zinc-400 group-hover:bg-zinc-600'
             }`}>
               {index + 1}
@@ -93,7 +93,7 @@ export default function PreviewTab({ slides, currentSlideIndex, onSlideSelect }:
             
             {/* Slide Preview */}
             <div className="flex-1 min-w-0">
-              <div className="font-medium text-white text-sm mb-1 truncate">
+              <div className="font-rajdhani font-medium text-white text-sm mb-1 truncate uppercase">
                 {slide.title}
               </div>
               <div className="text-xs text-zinc-400 line-clamp-2">
