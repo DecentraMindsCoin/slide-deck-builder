@@ -1,8 +1,12 @@
 'use client';
 
 import { AlertCircle, RefreshCw } from 'lucide-react';
-import Button from '@/components/shared/Button';
-import type { ErrorDisplayProps } from '@/types';
+import Button from '@/components/ui/Button';
+
+export interface ErrorDisplayProps {
+  error: string;
+  onRetry: () => void;
+}
 
 export default function ErrorDisplay({ error, onRetry }: ErrorDisplayProps) {
   return (

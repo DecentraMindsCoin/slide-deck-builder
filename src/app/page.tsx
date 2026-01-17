@@ -4,11 +4,11 @@ import { useState } from 'react';
 import Sidebar from '@/components/Sidebar';
 import HistoryPanel from '@/components/HistoryPanel';
 import EditorPanel from '@/components/EditorPanel';
-import PromptInput from '@/components/PromptInput';
-import SlideDeckModal from '@/components/SlideDeckModal';
+import HomeLayout from '@/components/HomeLayout';
+import SlideDeckModal from '@/components/SlideViewer';
 import ErrorDisplay from '@/components/ErrorDisplay';
 import { generateSlides } from '@/services/api';
-import { normalizeSlides } from '@/lib/normalizeSlides';
+import { normalizeSlides } from '@/lib/slides/normalizeSlides';
 import { useSlideDeckStore } from '@/store/useSlideDeckStore';
 import { useUIStore } from '@/store/useUIStore';
 import type { SlideContent } from '@/types';
@@ -82,8 +82,8 @@ export default function Home() {
           activePanel ? 'ml-96' : 'ml-16'
         }`}
       >
-        {/* Main Chat Page - Always Visible */}
-        <PromptInput
+        {/* Main Chat Page */}
+        <HomeLayout
           onSubmit={handlePromptSubmit}
           isLoading={appState === 'loading'}
         />

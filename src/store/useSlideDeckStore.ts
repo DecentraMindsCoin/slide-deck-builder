@@ -1,57 +1,7 @@
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
-import type { SlideDeck, SlideContent, AppState } from '@/types';
+import type { DeckHistoryItem, SlideDeckState, StyleHistoryEntry, AppState } from '@/types/store';
 
-interface DeckHistoryItem {
-  id: string;
-  deck: SlideDeck;
-  createdAt: number;
-  prompt: string;
-}
-
-interface SelectedElement {
-  slideId: string;
-  contentIndex: number | 'slide'; // 'slide' means entire slide is selected
-}
-
-interface StyleHistoryEntry {
-  timestamp: number;
-  type: 'element' | 'slide';
-  slideId: string;
-  contentIndex?: number;
-  previousStyle?: SlideContent['style'];
-  previousBackgroundColor?: string;
-  currentStyle?: SlideContent['style'];
-  currentBackgroundColor?: string;
-}
-
-interface SlideDeckState {
-  // State
-  appState: AppState;
-  slideDeck: SlideDeck | null;
-  error: string;
-  history: DeckHistoryItem[];
-  currentDeckId: string | null;
-  currentSlideIndex: number;
-  selectedElement: SelectedElement | null;
-  styleHistory: StyleHistoryEntry[];
-  
-  // Actions
-  setAppState: (state: AppState) => void;
-  setSlideDeck: (deck: SlideDeck | null) => void;
-  setError: (error: string) => void;
-  setCurrentSlideIndex: (index: number) => void;
-  setSelectedElement: (element: SelectedElement | null) => void;
-  updateElementStyle: (slideId: string, contentIndex: number, style: SlideContent['style']) => void;
-  updateSlideBackground: (slideId: string, backgroundColor: string) => void;
-  updateSlide: (slideId: string, title: string, content: SlideContent[]) => void;
-  undoLastStyleChange: () => void;
-  clearStyleHistory: () => void;
-  addToHistory: (deck: SlideDeck, prompt: string) => void;
-  loadDeckFromHistory: (id: string) => void;
-  deleteDeckFromHistory: (id: string) => void;
-  reset: () => void;
-}
 
 export const useSlideDeckStore = create<SlideDeckState>()(
   persist(

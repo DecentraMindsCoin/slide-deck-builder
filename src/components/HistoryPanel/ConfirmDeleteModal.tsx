@@ -1,8 +1,8 @@
 'use client';
 
-import Modal from '@/components/shared/Modal';
-import Button from '@/components/shared/Button';
-import type { PanelType } from '@/store/useUIStore';
+import Modal from '@/components/ui/Modal';
+import Button from '@/components/ui/Button';
+import { PanelType } from '@/types';
 
 interface ConfirmModalProps {
   isOpen: boolean;

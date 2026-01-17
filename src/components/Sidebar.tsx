@@ -1,9 +1,10 @@
 'use client';
 
-import { Plus, FileText, Home, Inbox, Sparkles, Folder, History, Settings } from 'lucide-react';
-import Button from '@/components/shared/Button';
-import { useSlideDeckStore } from '@/store/useSlideDeckStore';
-import { useUIStore } from '@/store/useUIStore';
+import { Plus, Sparkles, History, Settings } from "lucide-react";
+import Button from "@/components/ui/Button";
+import { useSlideDeckStore } from "@/store/useSlideDeckStore";
+import { useUIStore } from "@/store/useUIStore";
+// import { NAV_BUTTONS } from "@/constants/navigation";
 
 export default function Sidebar() {
   const history = useSlideDeckStore((state) => state.history);
@@ -56,13 +57,13 @@ export default function Sidebar() {
       </Button>
 
       {/* Editor Panel Toggle - Only visible when viewing slides */}
-      {appState === 'viewing' && (
+      {appState === "viewing" && (
         <Button
-          onClick={() => togglePanel('editor')}
+          onClick={() => togglePanel("editor")}
           variant="icon"
           icon={<Settings className="w-5 h-5" />}
           className={`group relative ${
-            activePanel === 'editor' ? 'bg-zinc-800 text-white' : ''
+            activePanel === "editor" ? "bg-zinc-800 text-white" : ""
           }`}
           title="Editor"
         >
@@ -72,60 +73,20 @@ export default function Sidebar() {
         </Button>
       )}
 
-      <Button
-        variant="icon"
-        icon={<FileText className="w-5 h-5" />}
-        className="group relative"
-        title="All Slides"
-      >
-        <span className="absolute left-full ml-2 px-2 py-1 bg-zinc-950 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-          All Slides
-        </span>
-      </Button>
-
-      <Button
-        variant="icon"
-        icon={<Home className="w-5 h-5" />}
-        className="group relative"
-        title="Home"
-      >
-        <span className="absolute left-full ml-2 px-2 py-1 bg-zinc-950 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-          Home
-        </span>
-      </Button>
-
-      <Button
-        variant="icon"
-        icon={<Inbox className="w-5 h-5" />}
-        className="group relative"
-        title="AI Inbox"
-      >
-        <span className="absolute left-full ml-2 px-2 py-1 bg-zinc-950 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-          AI Inbox
-        </span>
-      </Button>
-
-      <Button
-        variant="icon"
-        icon={<Sparkles className="w-5 h-5" />}
-        className="group relative"
-        title="Hub"
-      >
-        <span className="absolute left-full ml-2 px-2 py-1 bg-zinc-950 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-          Hub
-        </span>
-      </Button>
-
-      <Button
-        variant="icon"
-        icon={<Folder className="w-5 h-5" />}
-        className="group relative"
-        title="AI Drive"
-      >
-        <span className="absolute left-full ml-2 px-2 py-1 bg-zinc-950 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-          AI Drive
-        </span>
-      </Button>
+      {/* Navigation Buttons (Disabled for now) */}
+      {/* {NAV_BUTTONS.map(({ icon: Icon, title }) => (
+        <Button
+          key={title}
+          variant="icon"
+          icon={<Icon className="w-5 h-5" />}
+          className="group relative"
+          title={title}
+        >
+          <span className="absolute left-full ml-2 px-2 py-1 bg-zinc-950 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+            {title}
+          </span>
+        </Button>
+      ))} */}
 
       {/* Spacer */}
       <div className="flex-1" />
