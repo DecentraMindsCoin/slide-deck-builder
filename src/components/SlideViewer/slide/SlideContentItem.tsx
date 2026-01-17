@@ -33,6 +33,9 @@ export default function SlideContentItem({
     letterSpacing: style.letterSpacing ? `${style.letterSpacing}px` : `${SLIDE_DEFAULTS.LETTER_SPACING}px`,
   };
 
+  // Check if element is empty (new element)
+  const isEmpty = !item.text || item.text.trim() === '';
+
   return (
     <div 
       onClick={(e) => {
@@ -40,7 +43,11 @@ export default function SlideContentItem({
         onSelect();
       }}
       className={`cursor-text transition-all rounded p-2 -m-2 ${
-        isSelected ? 'border-2 border-dashed border-blue-500 bg-blue-500/5' : 'hover:bg-zinc-800/30'
+        isSelected 
+          ? 'border-2 border-dashed border-blue-500 bg-blue-500/5' 
+          : isEmpty 
+          ? 'border-2 border-dashed border-zinc-600 bg-zinc-800/20' 
+          : 'hover:bg-zinc-800/30'
       }`}
     >
       {item.type === 'bullet' ? (
@@ -56,7 +63,7 @@ export default function SlideContentItem({
             className={`flex-1 outline-none ${isSelected ? 'cursor-text' : ''}`}
             style={textStyle}
           >
-            {item.text}
+            {item.text || (isEmpty ? 'Click to add text...' : '')}
           </p>
         </div>
       ) : (
@@ -70,7 +77,7 @@ export default function SlideContentItem({
           className={`leading-relaxed outline-none ${isSelected ? 'cursor-text' : ''}`}
           style={textStyle}
         >
-          {item.text}
+          {item.text || (isEmpty ? 'Click to add text...' : '')}
         </p>
       )}
     </div>

@@ -25,9 +25,9 @@ export interface SelectedElement {
 
 export interface StyleHistoryEntry {
   timestamp: number;
-  type: 'element' | 'slide';
+  type: 'element' | 'slide' | 'title';
   slideId: string;
-  contentIndex?: number;
+  contentIndex?: number | 'title';
   previousStyle?: SlideContent['style'];
   previousBackgroundColor?: string;
   currentStyle?: SlideContent['style'];
@@ -44,6 +44,7 @@ export interface SlideDeckState {
   currentSlideIndex: number;
   selectedElement: SelectedElement | null;
   styleHistory: StyleHistoryEntry[];
+  redoHistory: StyleHistoryEntry[];
   
   // Actions
   setAppState: (state: AppState) => void;
@@ -58,6 +59,7 @@ export interface SlideDeckState {
   deleteSlide: (slideId: string) => void;
   addSlide: () => void;
   undoLastStyleChange: () => void;
+  redoLastStyleChange: () => void;
   clearStyleHistory: () => void;
   addToHistory: (deck: SlideDeck, prompt: string) => void;
   loadDeckFromHistory: (id: string) => void;

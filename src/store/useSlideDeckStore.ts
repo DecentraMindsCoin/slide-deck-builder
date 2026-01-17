@@ -16,6 +16,7 @@ export const useSlideDeckStore = create<SlideDeckState>()(
         currentSlideIndex: 0,
         selectedElement: null,
         styleHistory: [],
+        redoHistory: [],
 
         // Actions
         setAppState: (appState) => set({ appState }, false, 'setAppState'),
@@ -24,7 +25,7 @@ export const useSlideDeckStore = create<SlideDeckState>()(
         
         setError: (error) => set({ error }, false, 'setError'),
         
-        setCurrentSlideIndex: (currentSlideIndex) => set({ currentSlideIndex }, false, 'setCurrentSlideIndex'),
+        setCurrentSlideIndex: (currentSlideIndex) => set({ currentSlideIndex, styleHistory: [], redoHistory: [] }, false, 'setCurrentSlideIndex'),
         
         setSelectedElement: (selectedElement) => set({ selectedElement }, false, 'setSelectedElement'),
         
@@ -79,6 +80,7 @@ export const useSlideDeckStore = create<SlideDeckState>()(
                 slideDeck: updatedDeck,
                 history: updatedHistory,
                 styleHistory: newStyleHistory,
+                redoHistory: [], // Clear redo history on new change
               };
             },
             false,
@@ -89,6 +91,10 @@ export const useSlideDeckStore = create<SlideDeckState>()(
           set(
             (state) => {
               if (!state.slideDeck) return state;
+
+              // Capture previous state for undo
+              const slide = state.slideDeck.slides.find((s) => s.id === slideId);
+              const previousStyle = slide?.titleStyle;
 
               const updatedSlides = state.slideDeck.slides.map((slide) => {
                 if (slide.id !== slideId) return slide;
@@ -109,9 +115,24 @@ export const useSlideDeckStore = create<SlideDeckState>()(
                   )
                 : state.history;
 
+              // Add to style history (keep last 10)
+              const newStyleHistory: StyleHistoryEntry[] = [
+                ...state.styleHistory.slice(-9),
+                {
+                  timestamp: Date.now(),
+                  type: 'title' as const,
+                  slideId,
+                  contentIndex: 'title',
+                  previousStyle,
+                  currentStyle: style,
+                },
+              ];
+
               return {
                 slideDeck: updatedDeck,
                 history: updatedHistory,
+                styleHistory: newStyleHistory,
+                redoHistory: [], // Clear redo history on new change
               };
             },
             false,
@@ -161,6 +182,7 @@ export const useSlideDeckStore = create<SlideDeckState>()(
                 slideDeck: updatedDeck,
                 history: updatedHistory,
                 styleHistory: newStyleHistory,
+                redoHistory: [], // Clear redo history on new change
               };
             },
             false,
@@ -176,7 +198,7 @@ export const useSlideDeckStore = create<SlideDeckState>()(
               
               let updatedSlides = state.slideDeck.slides;
 
-              if (lastChange.type === 'element' && lastChange.contentIndex !== undefined) {
+              if (lastChange.type === 'element' && typeof lastChange.contentIndex === 'number') {
                 // Restore previous element style
                 updatedSlides = state.slideDeck.slides.map((slide) => {
                   if (slide.id !== lastChange.slideId) return slide;
@@ -188,6 +210,13 @@ export const useSlideDeckStore = create<SlideDeckState>()(
                   
                   return { ...slide, content: updatedContent };
                 });
+              } else if (lastChange.type === 'title') {
+                // Restore previous title style
+                updatedSlides = state.slideDeck.slides.map((slide) =>
+                  slide.id === lastChange.slideId
+                    ? { ...slide, titleStyle: lastChange.previousStyle || {} }
+                    : slide
+                );
               } else if (lastChange.type === 'slide') {
                 // Restore previous slide background
                 updatedSlides = state.slideDeck.slides.map((slide) =>
@@ -211,17 +240,92 @@ export const useSlideDeckStore = create<SlideDeckState>()(
                   )
                 : state.history;
 
+              // Add undone change to redo history
+              const newRedoHistory: StyleHistoryEntry[] = [
+                ...state.redoHistory,
+                lastChange,
+              ];
+
               return {
                 slideDeck: updatedDeck,
                 history: updatedHistory,
                 styleHistory: state.styleHistory.slice(0, -1),
+                redoHistory: newRedoHistory,
               };
             },
             false,
             'undoLastStyleChange'
           ),
         
-        clearStyleHistory: () => set({ styleHistory: [] }, false, 'clearStyleHistory'),
+        redoLastStyleChange: () =>
+          set(
+            (state) => {
+              if (!state.slideDeck || state.redoHistory.length === 0) return state;
+
+              const lastRedo = state.redoHistory[state.redoHistory.length - 1];
+              
+              let updatedSlides = state.slideDeck.slides;
+
+              if (lastRedo.type === 'element' && typeof lastRedo.contentIndex === 'number') {
+                // Restore redone element style
+                updatedSlides = state.slideDeck.slides.map((slide) => {
+                  if (slide.id !== lastRedo.slideId) return slide;
+                  
+                  const updatedContent = slide.content.map((item, idx) => {
+                    if (idx !== lastRedo.contentIndex) return item;
+                    return { ...item, style: lastRedo.currentStyle || {} };
+                  });
+                  
+                  return { ...slide, content: updatedContent };
+                });
+              } else if (lastRedo.type === 'title') {
+                // Restore redone title style
+                updatedSlides = state.slideDeck.slides.map((slide) =>
+                  slide.id === lastRedo.slideId
+                    ? { ...slide, titleStyle: lastRedo.currentStyle || {} }
+                    : slide
+                );
+              } else if (lastRedo.type === 'slide') {
+                // Restore redone slide background
+                updatedSlides = state.slideDeck.slides.map((slide) =>
+                  slide.id === lastRedo.slideId
+                    ? { ...slide, backgroundColor: lastRedo.currentBackgroundColor }
+                    : slide
+                );
+              }
+
+              const updatedDeck = {
+                ...state.slideDeck,
+                slides: updatedSlides,
+              };
+
+              // Also update in history if this is a saved deck
+              const updatedHistory = state.currentDeckId
+                ? state.history.map((item) =>
+                    item.id === state.currentDeckId
+                      ? { ...item, deck: updatedDeck }
+                      : item
+                  )
+                : state.history;
+
+              // Move redone change back to style history
+              const newStyleHistory: StyleHistoryEntry[] = [
+                ...state.styleHistory,
+                lastRedo,
+              ];
+
+              return {
+                slideDeck: updatedDeck,
+                history: updatedHistory,
+                styleHistory: newStyleHistory,
+                redoHistory: state.redoHistory.slice(0, -1),
+              };
+            },
+            false,
+            'redoLastStyleChange'
+          ),
+        
+        clearStyleHistory: () => set({ styleHistory: [], redoHistory: [] }, false, 'clearStyleHistory'),
         
         addToHistory: (deck, prompt) =>
           set(
@@ -378,7 +482,7 @@ export const useSlideDeckStore = create<SlideDeckState>()(
       
         reset: () =>
           set(
-            { appState: 'input', slideDeck: null, error: '', currentDeckId: null, currentSlideIndex: 0, selectedElement: null, styleHistory: [] },
+            { appState: 'input', slideDeck: null, error: '', currentDeckId: null, currentSlideIndex: 0, selectedElement: null, styleHistory: [], redoHistory: [] },
             false,
             'reset'
           ),

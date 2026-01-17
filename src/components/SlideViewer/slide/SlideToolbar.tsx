@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Plus, Trash2, Copy, Download } from 'lucide-react';
+import { Plus, Trash2, Copy, Download, Undo, Redo } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import AddElementPopover from '@/components/AddElementPopover';
+import { useSlideDeckStore } from '@/store/useSlideDeckStore';
 import type { SelectedElement } from '@/types/store';
 
 interface SlideToolbarProps {
@@ -29,6 +30,12 @@ export default function SlideToolbar({
 }: SlideToolbarProps) {
   const [showAddMenu, setShowAddMenu] = useState(false);
   const addMenuRef = useRef<HTMLDivElement>(null);
+  
+  // Get undo/redo state from store
+  const styleHistory = useSlideDeckStore((state) => state.styleHistory);
+  const redoHistory = useSlideDeckStore((state) => state.redoHistory);
+  const undoLastStyleChange = useSlideDeckStore((state) => state.undoLastStyleChange);
+  const redoLastStyleChange = useSlideDeckStore((state) => state.redoLastStyleChange);
 
   const hasSelectedContent = selectedElement && typeof selectedElement.contentIndex === 'number';
   const hasSelectedTitle = selectedElement && selectedElement.contentIndex === 'title';
@@ -60,7 +67,7 @@ export default function SlideToolbar({
   };
 
   return (
-    <div className="flex items-center justify-between gap-2 py-3 px-4 bg-zinc-900 border-b border-zinc-800">
+    <div className="flex items-center justify-between gap-2 py-3 px-6 bg-zinc-900 border-b border-zinc-800">
       <div className="flex items-center gap-1">
         {/* Add Element Button with Popover */}
         <div className="relative" ref={addMenuRef}>
@@ -137,17 +144,43 @@ export default function SlideToolbar({
         )}
       </div>
 
-      {/* Export Button - Far Right */}
-      {onExport && (
-        <Button
-          onClick={onExport}
-          variant="primary"
-          icon={<Download className="w-4 h-4" />}
-          size="sm"
-        >
-          Export
-        </Button>
-      )}
+      {/* Undo/Redo Buttons - Center Right */}
+      <div className="flex items-center gap-1">
+        {(styleHistory.length > 0 || redoHistory.length > 0) && (
+          <>
+            <Button
+              onClick={undoLastStyleChange}
+              disabled={styleHistory.length === 0}
+              variant="icon"
+              icon={<Undo className="w-4 h-4" />}
+              title="Undo Last Change"
+              className="hover:bg-zinc-800"
+            />
+            <Button
+              onClick={redoLastStyleChange}
+              disabled={redoHistory.length === 0}
+              variant="icon"
+              icon={<Redo className="w-4 h-4" />}
+              title="Redo Last Change"
+              className="hover:bg-zinc-800"
+            />
+            {/* Divider */}
+            <div className="w-px h-6 bg-zinc-700 mx-1" />
+          </>
+        )}
+        
+        {/* Export Button - Far Right */}
+        {onExport && (
+          <Button
+            onClick={onExport}
+            variant="primary"
+            icon={<Download className="w-4 h-4" />}
+            size="sm"
+          >
+            Export
+          </Button>
+        )}
+      </div>
     </div>
   );
 }

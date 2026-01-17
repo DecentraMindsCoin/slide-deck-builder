@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Undo, Plus, MousePointerClick } from 'lucide-react';
+import { Undo, Redo, Plus, MousePointerClick } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import EmptyState from '@/components/ui/EmptyState';
 import AddElementPopover from '@/components/AddElementPopover';
@@ -82,7 +82,9 @@ export default function EditTab() {
   // Slide-level styling
   const updateSlideBackground = useSlideDeckStore((state) => state.updateSlideBackground);
   const styleHistory = useSlideDeckStore((state) => state.styleHistory);
+  const redoHistory = useSlideDeckStore((state) => state.redoHistory);
   const undoLastStyleChange = useSlideDeckStore((state) => state.undoLastStyleChange);
+  const redoLastStyleChange = useSlideDeckStore((state) => state.redoLastStyleChange);
   const getCurrentSlide = () => {
     if (!slideDeck) return null;
     return slideDeck.slides[currentSlideIndex];
@@ -204,7 +206,7 @@ export default function EditTab() {
         </div>
       ) : (
         // Element-level controls
-        <div className="flex-1 overflow-y-auto p-4 space-y-6 pb-20">
+        <div className="flex-1 overflow-y-auto p-4 pb-20">
         <FontStyleControls
           fontFamily={fontFamily}
           setFontFamily={setFontFamily}
@@ -218,6 +220,8 @@ export default function EditTab() {
           setTextDecoration={setTextDecoration}
         />
 
+        <div className="border-t border-zinc-800/50 my-6" />
+
         <ColorControls
           color={color}
           setColor={setColor}
@@ -225,10 +229,14 @@ export default function EditTab() {
           setBackgroundColor={setBackgroundColor}
         />
 
+        <div className="border-t border-zinc-800/50 my-6" />
+
         <AlignmentControls
           textAlign={textAlign}
           setTextAlign={setTextAlign}
         />
+
+        <div className="border-t border-zinc-800/50 my-6" />
 
         <SpacingControls
           lineHeight={lineHeight}
@@ -239,17 +247,29 @@ export default function EditTab() {
         </div>
       )}
 
-      {/* Fixed Footer with Undo Button */}
-      {styleHistory.length > 0 && (
+      {/* Fixed Footer with Undo/Redo Buttons */}
+      {(styleHistory.length > 0 || redoHistory.length > 0) && (
         <div className="absolute bottom-0 left-0 right-0 p-4 bg-zinc-900 border-t border-zinc-800">
-          <Button 
-            onClick={undoLastStyleChange}
-            variant="secondary"
-            icon={<Undo className="w-4 h-4" />}
-            fullWidth
-          >
-            Undo
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              onClick={undoLastStyleChange}
+              disabled={styleHistory.length === 0}
+              variant="secondary"
+              icon={<Undo className="w-4 h-4" />}
+              className="flex-1"
+            >
+              Undo
+            </Button>
+            <Button 
+              onClick={redoLastStyleChange}
+              disabled={redoHistory.length === 0}
+              variant="secondary"
+              icon={<Redo className="w-4 h-4" />}
+              className="flex-1"
+            >
+              Redo
+            </Button>
+          </div>
         </div>
       )}
     </div>
