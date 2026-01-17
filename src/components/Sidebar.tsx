@@ -1,20 +1,29 @@
 'use client';
 
-import { Plus, Sparkles, History, Settings } from "lucide-react";
+import { Plus, Sparkles, History, Settings, Eye } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { useSlideDeckStore } from "@/store/useSlideDeckStore";
 import { useUIStore } from "@/store/useUIStore";
 // import { NAV_BUTTONS } from "@/constants/navigation";
 
-export default function Sidebar() {
+interface SidebarProps {
+  onFocusPrompt?: () => void;
+}
+
+export default function Sidebar({ onFocusPrompt }: SidebarProps) {
   const history = useSlideDeckStore((state) => state.history);
   const appState = useSlideDeckStore((state) => state.appState);
   const reset = useSlideDeckStore((state) => state.reset);
   const activePanel = useUIStore((state) => state.activePanel);
   const togglePanel = useUIStore((state) => state.togglePanel);
 
+  const handleNewDeck = () => {
+    reset();
+    onFocusPrompt?.();
+  };
+
   return (
-    <aside className="fixed left-0 top-0 h-screen w-16 bg-zinc-900 border-r border-zinc-800 flex flex-col items-center py-4 space-y-2 z-10">
+    <aside className="fixed left-0 top-0 h-screen w-16 bg-zinc-900 border-r border-zinc-800 flex flex-col items-center py-4 space-y-2 z-100">
       {/* Logo */}
       <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center mb-4">
         <Sparkles className="w-6 h-6 text-black" />
@@ -22,7 +31,7 @@ export default function Sidebar() {
 
       {/* New Deck Button */}
       <Button
-        onClick={reset}
+        onClick={handleNewDeck}
         variant="secondary"
         icon={<Plus className="w-5 h-5" />}
         className="group relative"
@@ -33,8 +42,6 @@ export default function Sidebar() {
         </span>
       </Button>
 
-      {/* Divider */}
-      <div className="w-8 h-px bg-zinc-800 my-2" />
 
       {/* Navigation Icons */}
       <Button
@@ -47,7 +54,7 @@ export default function Sidebar() {
         title="History"
       >
         {history.length > 0 && (
-          <span className="absolute -top-1 -right-1 w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center text-[10px] text-white font-semibold">
+          <span className="absolute -bottom-1 -right-1 w-5 h-5 bg-white/50 rounded-full flex items-center justify-center text-[10px] text-black font-semibold">
             {history.length}
           </span>
         )}
@@ -55,6 +62,23 @@ export default function Sidebar() {
           History
         </span>
       </Button>
+
+      {/* Viewer Panel Toggle - Only visible when viewing slides */}
+      {appState === "viewing" && (
+        <Button
+          onClick={() => togglePanel("viewer")}
+          variant="icon"
+          icon={<Eye className="w-5 h-5" />}
+          className={`group relative ${
+            activePanel === "viewer" ? "bg-zinc-800 text-white" : ""
+          }`}
+          title="Viewer"
+        >
+          <span className="absolute left-full ml-2 px-2 py-1 bg-zinc-950 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+            Viewer
+          </span>
+        </Button>
+      )}
 
       {/* Editor Panel Toggle - Only visible when viewing slides */}
       {appState === "viewing" && (

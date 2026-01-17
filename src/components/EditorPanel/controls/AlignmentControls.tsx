@@ -11,14 +11,14 @@ export default function AlignmentControls({
 }: AlignmentControlsProps) {
   return (
     <div>
-      <div className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-3">
+      <div className="font-rajdhani text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-3">
         Alignment
       </div>
       <div className="grid grid-cols-3 gap-2">
         <Button 
           variant="secondary" 
           size="sm"
-          className={textAlign === 'left' ? 'bg-blue-600 hover:bg-blue-700' : ''}
+          className={textAlign === 'left' ? 'bg-white/10 hover:bg-blue-700' : ''}
           onClick={() => setTextAlign('left')}
         >
           Left
@@ -26,7 +26,7 @@ export default function AlignmentControls({
         <Button 
           variant="secondary" 
           size="sm"
-          className={textAlign === 'center' ? 'bg-blue-600 hover:bg-blue-700' : ''}
+          className={textAlign === 'center' ? 'bg-white/10 hover:bg-blue-700' : ''}
           onClick={() => setTextAlign('center')}
         >
           Center
@@ -34,7 +34,7 @@ export default function AlignmentControls({
         <Button 
           variant="secondary" 
           size="sm"
-          className={textAlign === 'right' ? 'bg-blue-600 hover:bg-blue-700' : ''}
+          className={textAlign === 'right' ? 'bg-white/10 hover:bg-blue-700' : ''}
           onClick={() => setTextAlign('right')}
         >
           Right

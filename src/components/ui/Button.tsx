@@ -33,26 +33,26 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     // Regular button sizes
     const sizeClasses = {
-      sm: 'px-3 py-1.5 text-sm',
-      md: 'px-4 py-2 text-base',
-      lg: 'px-6 py-3 text-lg',
+      sm: 'p-3 text-sm',
+      md: 'p-4 text-base',
+      lg: 'p-6 text-lg',
     };
 
     const variantClasses = {
-      primary: 'bg-blue-600 text-white hover:bg-blue-700 border-transparent',
-      secondary: 'bg-zinc-800 text-white hover:bg-zinc-700 border-transparent',
-      outline: 'bg-transparent text-zinc-300 border-zinc-700 hover:bg-zinc-800',
-      ghost: 'bg-transparent text-zinc-400 border-transparent hover:bg-zinc-800 hover:text-zinc-300',
-      danger: 'bg-red-600 text-white hover:bg-red-700 border-transparent',
-      icon: 'bg-transparent text-zinc-400 border-transparent hover:bg-zinc-800 hover:text-white',
+      primary: 'bg-white/10 text-white border-white/20 backdrop-blur-md hover:bg-white/15 hover:shadow-[0_0_20px_rgba(255,255,255,0.3)]',
+      secondary: 'bg-white/5 text-white border-white/10 backdrop-blur-md hover:bg-white/10 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)]',
+      outline: 'bg-transparent text-white border-white/30 backdrop-blur-sm hover:bg-white/10 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)]',
+      ghost: 'bg-transparent text-white/80 border-transparent hover:bg-white/10 hover:text-white hover:shadow-[0_0_10px_rgba(255,255,255,0.15)]',
+      danger: 'bg-red-500/20 text-white border-red-500/30 backdrop-blur-md hover:bg-red-500/30 hover:shadow-[0_0_15px_rgba(239,68,68,0.3)]',
+      icon: 'bg-transparent rounded-tr-2xl text-white/70 border-transparent hover:bg-white/10 hover:text-white hover:shadow-[0_0_10px_rgba(255,255,255,0.15)]',
     };
 
     const baseClasses = `
-      inline-flex items-center justify-center
-      font-medium rounded-lg border
-      transition-colors
+      cursor-pointer inline-flex items-center justify-center
+      font-rajdhani font-semibold rounded-lg border uppercase tracking-tight
+      transition-all duration-200
       disabled:opacity-50 disabled:cursor-not-allowed
-      focus:outline-none focus:ring-2 focus:ring-zinc-600
+      focus:outline-none focus:ring-2 focus:ring-white/30
     `;
 
     const widthClasses = fullWidth ? 'w-full' : '';

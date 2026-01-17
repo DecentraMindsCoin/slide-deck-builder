@@ -1,55 +1,62 @@
-import { Edit2, Check, X } from 'lucide-react';
-import Button from '@/components/ui/Button';
 import { SLIDE_DEFAULTS } from '@/constants';
+import type { SlideContent } from '@/types';
 
 interface SlideTitleProps {
   title: string;
-  isEditing: boolean;
-  editedTitle: string;
-  onStartEdit: () => void;
-  onSave: () => void;
-  onCancel: () => void;
-  onChange: (value: string) => void;
+  titleStyle?: SlideContent['style'];
+  isSelected: boolean;
+  onSelect: () => void;
+  onTextEdit: (element: HTMLElement) => void;
+  editableRef: (el: HTMLElement | null) => void;
 }
 
 export default function SlideTitle({
   title,
-  isEditing,
-  editedTitle,
-  onStartEdit,
-  onSave,
-  onCancel,
-  onChange,
+  titleStyle,
+  isSelected,
+  onSelect,
+  onTextEdit,
+  editableRef,
 }: SlideTitleProps) {
+  const style = titleStyle || {};
+  
+  const titleTextStyle = {
+    fontSize: style.fontSize ? `${style.fontSize}px` : '36px',
+    fontFamily: style.fontFamily || SLIDE_DEFAULTS.FONT_FAMILY,
+    fontWeight: style.fontWeight || 'bold',
+    fontStyle: style.fontStyle || SLIDE_DEFAULTS.FONT_STYLE,
+    textDecoration: style.textDecoration || SLIDE_DEFAULTS.TEXT_DECORATION,
+    color: style.color || SLIDE_DEFAULTS.TITLE_COLOR,
+    backgroundColor: style.backgroundColor || SLIDE_DEFAULTS.TRANSPARENT,
+    textAlign: style.textAlign || SLIDE_DEFAULTS.TEXT_ALIGN,
+    lineHeight: style.lineHeight || SLIDE_DEFAULTS.LINE_HEIGHT,
+    letterSpacing: style.letterSpacing ? `${style.letterSpacing}px` : `${SLIDE_DEFAULTS.LETTER_SPACING}px`,
+  };
+
   return (
     <div className="mb-8">
-      {isEditing ? (
-        <div className="flex items-center gap-2">
-          <input
-            type="text"
-            value={editedTitle}
-            onChange={(e) => onChange(e.target.value)}
-            className="flex-1 text-4xl font-bold bg-transparent border-b-2 border-zinc-400 focus:border-zinc-500 focus:outline-none"
-            style={{ color: SLIDE_DEFAULTS.TITLE_COLOR }}
-            autoFocus
-          />
-          <Button onClick={onSave} size="sm" variant="primary" className="bg-green-600 hover:bg-green-700">
-            <Check className="w-5 h-5" />
-          </Button>
-          <Button onClick={onCancel} size="sm" variant="secondary">
-            <X className="w-5 h-5" />
-          </Button>
-        </div>
-      ) : (
-        <div className="flex items-center gap-3">
-          <h2 className="text-4xl font-bold" style={{ color: SLIDE_DEFAULTS.TITLE_COLOR }}>
-            {title}
-          </h2>
-          <Button onClick={onStartEdit} variant="ghost" size="sm">
-            <Edit2 className="w-5 h-5" />
-          </Button>
-        </div>
-      )}
+      <div 
+        onClick={(e) => {
+          e.stopPropagation();
+          onSelect();
+        }}
+        className={`cursor-text transition-all rounded p-2 -m-2 ${
+          isSelected ? 'border-2 border-dashed border-blue-500 bg-blue-500/5' : 'hover:bg-zinc-800/30'
+        }`}
+      >
+        <h2 
+          ref={(el) => {
+            if (isSelected) editableRef(el);
+          }}
+          contentEditable={isSelected}
+          suppressContentEditableWarning
+          onBlur={(e) => onTextEdit(e.currentTarget)}
+          className={`text-4xl outline-none ${isSelected ? 'cursor-text' : ''}`}
+          style={titleTextStyle}
+        >
+          {title}
+        </h2>
+      </div>
     </div>
   );
 }

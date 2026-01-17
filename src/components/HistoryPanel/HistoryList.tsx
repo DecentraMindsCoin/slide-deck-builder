@@ -1,4 +1,5 @@
-import { FileText, Trash2 } from 'lucide-react';
+import { FileText, Trash2, FolderOpen } from 'lucide-react';
+import EmptyState from '@/components/ui/EmptyState';
 import { formatRelativeTime, truncate } from '@/lib/utils/utils';
 import type { SlideDeck } from '@/types';
 
@@ -24,23 +25,23 @@ export default function HistoryList({
 }: HistoryListProps) {
   if (history.length === 0) {
     return (
-      <div className="flex-1 overflow-y-auto space-y-2 p-4">
-        <div className="text-zinc-500 text-sm text-center py-8">
-          No decks generated yet
-        </div>
-      </div>
+      <EmptyState
+        icon={FolderOpen}
+        heading="No Decks Yet"
+        message="Generate your first slide deck to see it appear here"
+      />
     );
   }
 
   return (
-    <div className="flex-1 overflow-y-auto space-y-2 p-4">
+    <div className="h-full overflow-y-auto space-y-2 p-4">
       {history.map((item) => (
         <div
           key={item.id}
-          className={`group p-3 rounded-lg cursor-pointer transition-colors ${
+          className={`group p-3 rounded-lg border cursor-pointer transition-all ${
             currentDeckId === item.id
-              ? 'bg-blue-600/20 border border-blue-600/50'
-              : 'bg-zinc-800/50 hover:bg-zinc-800 border border-transparent'
+              ? 'bg-white/10 border-white/50'
+              : 'bg-zinc-800/50 border-zinc-700 hover:border-zinc-600 hover:bg-zinc-800'
           }`}
           onClick={() => onLoadDeck(item.id)}
         >
@@ -48,7 +49,7 @@ export default function HistoryList({
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
                 <FileText className="w-4 h-4 text-zinc-400 shrink-0" />
-                <span className="text-white text-sm font-medium truncate">
+                <span className="font-rajdhani text-white text-sm font-medium truncate uppercase">
                   {item.deck.deckTitle}
                 </span>
               </div>

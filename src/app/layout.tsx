@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Rajdhani } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -10,6 +10,12 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+const rajdhani = Rajdhani({
+  variable: "--font-rajdhani",
+  subsets: ["latin"],
+  weight: ["700"],
 });
 
 export const metadata: Metadata = {
@@ -25,11 +31,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-zinc-950`}
+        className={`${geistSans.variable} ${geistMono.variable} ${rajdhani.variable} antialiased bg-zinc-950`}
       >
-        <div className="flex h-screen">
-          {children}
-        </div>
+        {children}
       </body>
     </html>
   );
