@@ -1,7 +1,9 @@
 'use client';
 
-import { Plus, Type, List, Trash2, Copy, Download } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Plus, Trash2, Copy, Download } from 'lucide-react';
 import Button from '@/components/ui/Button';
+import AddElementPopover from '@/components/ui/AddElementPopover';
 import type { SelectedElement } from '@/types/store';
 
 interface SlideToolbarProps {
@@ -25,29 +27,59 @@ export default function SlideToolbar({
   onExport,
   selectedElement,
 }: SlideToolbarProps) {
+  const [showAddMenu, setShowAddMenu] = useState(false);
+  const addMenuRef = useRef<HTMLDivElement>(null);
+
   const hasSelectedContent = selectedElement && typeof selectedElement.contentIndex === 'number';
   const hasSelectedTitle = selectedElement && selectedElement.contentIndex === 'title';
   const hasSelectedSlide = selectedElement && selectedElement.contentIndex === 'slide';
   const showDeleteButton = hasSelectedContent || hasSelectedTitle || hasSelectedSlide;
 
+  // Close popover when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (addMenuRef.current && !addMenuRef.current.contains(event.target as Node)) {
+        setShowAddMenu(false);
+      }
+    };
+
+    if (showAddMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [showAddMenu]);
+
+  const handleAddParagraph = () => {
+    onAddParagraph();
+    setShowAddMenu(false);
+  };
+
+  const handleAddBullet = () => {
+    onAddBullet();
+    setShowAddMenu(false);
+  };
+
   return (
     <div className="flex items-center justify-between gap-2 py-3 px-4 bg-zinc-900 border-b border-zinc-800">
       <div className="flex items-center gap-1">
-        {/* Add Content Items */}
-        <Button
-          onClick={onAddParagraph}
-          variant="icon"
-          icon={<Type className="w-4 h-4" />}
-          title="Add Paragraph"
-          className="hover:bg-zinc-800"
-        />
-        <Button
-          onClick={onAddBullet}
-          variant="icon"
-          icon={<List className="w-4 h-4" />}
-          title="Add Bullet Point"
-          className="hover:bg-zinc-800"
-        />
+        {/* Add Element Button with Popover */}
+        <div className="relative" ref={addMenuRef}>
+          <Button
+            onClick={() => setShowAddMenu(!showAddMenu)}
+            variant="icon"
+            icon={<Plus className="w-4 h-4" />}
+            title="Add Element"
+            className="hover:bg-zinc-800"
+          />
+          
+          {/* Add Element Popover */}
+          {showAddMenu && (
+            <AddElementPopover
+              onAddParagraph={handleAddParagraph}
+              onAddBullet={handleAddBullet}
+            />
+          )}
+        </div>
         
         {/* Delete Selected Element */}
         {showDeleteButton && (

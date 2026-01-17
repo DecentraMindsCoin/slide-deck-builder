@@ -100,17 +100,29 @@ export default function PreviewTab({ slides, currentSlideIndex, onSlideSelect }:
 
             {/* Delete Button - Shows on hover */}
             {slides.length > 1 && (
-              <button
+              <Button
                 onClick={(e) => handleDeleteSlide(e, slide.id)}
-                className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-600/20 rounded transition-all shrink-0"
+                variant="ghost"
+                iconOnly
+                size="sm"
+                className="opacity-0 group-hover:opacity-100 hover:bg-red-600/20 shrink-0"
                 title="Delete Slide"
-              >
-                <Trash2 className="w-4 h-4 text-red-400" />
-              </button>
+                icon={<Trash2 className="w-4 h-4 text-red-400" />}
+              />
             )}
           </div>
         </div>
       ))}
+
+      {/* Add New Slide Button */}
+      <Button
+        onClick={addSlide}
+        variant="ghost"
+        iconOnly
+        className="w-full py-3 border-2 border-dashed border-zinc-700 rounded-lg hover:border-zinc-600 hover:bg-zinc-800/30"
+        title="Add New Slide"
+        icon={<Plus className="w-5 h-5 text-zinc-600" strokeWidth={2.5} />}
+      />
       </div>
     </div>
   );

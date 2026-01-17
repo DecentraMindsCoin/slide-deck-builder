@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
-import { Undo, Plus, Type, List, MousePointerClick } from 'lucide-react';
+import { Undo, Plus, MousePointerClick } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import EmptyState from '@/components/ui/EmptyState';
+import AddElementPopover from '@/components/ui/AddElementPopover';
 import { useSlideDeckStore } from '@/store/useSlideDeckStore';
 import { SLIDE_DEFAULTS } from '@/constants/slides';
 import FontStyleControls from './controls/FontStyleControls';
@@ -177,22 +178,10 @@ export default function EditTab() {
             
             {/* Add Element Popover */}
             {showAddMenu && (
-              <div className="absolute top-full right-0 mt-2 w-40 bg-zinc-800 border border-zinc-700 rounded-lg shadow-xl z-50">
-                <button
-                  onClick={handleAddParagraph}
-                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white hover:bg-zinc-700 transition-colors rounded-t-lg"
-                >
-                  <Type className="w-4 h-4" />
-                  Text
-                </button>
-                <button
-                  onClick={handleAddBullet}
-                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white hover:bg-zinc-700 transition-colors rounded-b-lg"
-                >
-                  <List className="w-4 h-4" />
-                  Bullet
-                </button>
-              </div>
+              <AddElementPopover
+                onAddParagraph={handleAddParagraph}
+                onAddBullet={handleAddBullet}
+              />
             )}
           </div>
         </div>

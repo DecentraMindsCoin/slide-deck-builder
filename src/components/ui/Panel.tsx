@@ -2,6 +2,7 @@
 
 import { ReactNode } from 'react';
 import { X } from 'lucide-react';
+import Button from '@/components/ui/Button';
 import { PanelType } from '@/types';
 
 interface PanelProps {
@@ -36,13 +37,15 @@ export default function Panel({
       className={`fixed left-16 top-0 h-full ${widthClasses[width]} bg-zinc-900 border-r border-zinc-800 flex flex-col ${zIndex} transition-all duration-300`}
     >
       {/* Universal Close Button - Top Right Corner */}
-      <button
+      <Button
         onClick={onClose}
-        className="absolute top-4 right-4 p-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-colors z-10"
+        variant="secondary"
+        iconOnly
+        size="md"
+        className="absolute top-3 right-4 z-10"
         title="Close Panel"
-      >
-        <X className="w-4 h-4 text-zinc-400" />
-      </button>
+        icon={<X className="w-4 h-4" />}
+      />
 
       {/* Optional Title */}
       {title && (

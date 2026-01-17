@@ -39,25 +39,23 @@ export default function PromptForm({
                 type="button"
                 variant="ghost"
                 size="sm"
-                className="text-gray-400 hover:text-gray-300"
+                iconOnly
+                icon={<Mic className="w-5 h-5" />}
                 title="Voice input"
-              >
-                <Mic className="w-5 h-5" />
-              </Button>
+              />
               <Button
                 type="submit"
                 disabled={!prompt.trim() || isLoading}
                 variant="secondary"
                 size="sm"
-                className="bg-gray-700 hover:bg-gray-600"
-                title="Generate slides"
-              >
-                {isLoading ? (
-                  <Loader2 className="w-5 h-5 text-gray-400 animate-spin" />
+                iconOnly
+                icon={isLoading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
                 ) : (
-                  <ArrowRight className="w-5 h-5 text-gray-300" />
+                  <ArrowRight className="w-5 h-5" />
                 )}
-              </Button>
+                title="Generate slides"
+              />
             </div>
           </div>
         </form>

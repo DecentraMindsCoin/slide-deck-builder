@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import SlideViewer from '@/components/SlideViewer/slide/SlideDeckViewer';
 import { useUIStore } from '@/store/useUIStore';
 import { useSlideDeckStore } from '@/store/useSlideDeckStore';
+import { useKeyboardNavigation } from '@/lib/hooks/useKeyboardNavigation';
 import type { SlideDeck, SlideContent } from '@/types';
 import { Modal } from '../ui';
 
@@ -34,6 +35,30 @@ export default function SlideDeckModal({
       setCurrentSlideIndex(0); // Reset slide index when closing
     }
   }, [isOpen, setActivePanel, setCurrentSlideIndex]);
+
+  // Keyboard navigation for slides with looping
+  useKeyboardNavigation({
+    enabled: isOpen && !!slideDeck,
+    loop: true,
+    onPrevious: () => {
+      if (!slideDeck) return;
+      if (currentSlideIndex > 0) {
+        setCurrentSlideIndex(currentSlideIndex - 1);
+      } else {
+        // Loop to last slide
+        setCurrentSlideIndex(slideDeck.slides.length - 1);
+      }
+    },
+    onNext: () => {
+      if (!slideDeck) return;
+      if (currentSlideIndex < slideDeck.slides.length - 1) {
+        setCurrentSlideIndex(currentSlideIndex + 1);
+      } else {
+        // Loop to first slide
+        setCurrentSlideIndex(0);
+      }
+    },
+  });
 
   if (!slideDeck) return null;
 
