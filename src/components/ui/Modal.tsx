@@ -13,6 +13,7 @@ interface ModalProps {
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
   activePanel?: PanelType;
   height?: 'full' | 'auto';
+  zIndex?: number;
 }
 
 const maxWidthClasses = {
@@ -31,6 +32,7 @@ export default function Modal({
   maxWidth = 'xl',
   activePanel = null,
   height = 'full',
+  zIndex = 40,
 }: ModalProps) {
   // Prevent body scroll when modal is open
   useEffect(() => {
@@ -59,16 +61,24 @@ export default function Modal({
 
   // Calculate modal positioning based on active panel
   const modalLeftClass = activePanel ? 'left-96' : 'left-16';
+  const backdropLeftClass = activePanel ? 'left-96' : 'left-0';
 
   return (
     <div 
-      className={`fixed inset-0 z-40 flex items-center justify-center py-[5vh] px-4 sm:px-12 transition-all duration-300 ${modalLeftClass}`}
+      className={`fixed inset-0 flex items-center justify-center py-[5vh] px-4 sm:px-12 transition-all duration-300 ${modalLeftClass}`}
+      style={{ zIndex }}
     >
-      {/* Backdrop - Covers full screen */}
+      {/* Left side backdrop - Covers sidebar and panel area */}
+      {activePanel && (
+        <div
+          className="absolute top-0 left-0 bottom-0 w-96 bg-black/70 backdrop-blur-sm pointer-events-none"
+        />
+      )}
+      
+      {/* Main backdrop - Starts after panel area to not cover panel close buttons */}
       <div
-        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+        className={`absolute inset-0 bg-black/70 backdrop-blur-sm ${backdropLeftClass}`}
         onClick={onClose}
-        style={{ left: 0 }}
       />
 
       {/* Modal Content */}

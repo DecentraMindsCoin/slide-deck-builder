@@ -6,9 +6,9 @@ import type { SlideDeck, SlideContent } from './slides';
 // STORE STATE TYPES
 // ============================================================================
 
-export type AppState = 'input' | 'loading' | 'viewing' | 'error';
+export type AppState = 'input' | 'loading' | 'generated' | 'viewing' | 'error';
 
-export type PanelType = 'history' | 'editor' | null;
+export type PanelType = 'history' | 'viewer' | 'editor' | null;
 
 // Slide Deck Store Types
 export interface DeckHistoryItem {
@@ -20,7 +20,7 @@ export interface DeckHistoryItem {
 
 export interface SelectedElement {
   slideId: string;
-  contentIndex: number | 'slide';
+  contentIndex: number | 'slide' | 'title';
 }
 
 export interface StyleHistoryEntry {
@@ -52,8 +52,11 @@ export interface SlideDeckState {
   setCurrentSlideIndex: (index: number) => void;
   setSelectedElement: (element: SelectedElement | null) => void;
   updateElementStyle: (slideId: string, contentIndex: number, style: SlideContent['style']) => void;
+  updateTitleStyle: (slideId: string, style: SlideContent['style']) => void;
   updateSlideBackground: (slideId: string, backgroundColor: string) => void;
   updateSlide: (slideId: string, title: string, content: SlideContent[]) => void;
+  deleteSlide: (slideId: string) => void;
+  addSlide: () => void;
   undoLastStyleChange: () => void;
   clearStyleHistory: () => void;
   addToHistory: (deck: SlideDeck, prompt: string) => void;

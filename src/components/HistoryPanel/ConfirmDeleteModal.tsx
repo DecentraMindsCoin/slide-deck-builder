@@ -33,7 +33,7 @@ export default function ConfirmModal({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={title} maxWidth="sm" activePanel={activePanel} height="auto">
+    <Modal isOpen={isOpen} onClose={onClose} title={title} maxWidth="sm" activePanel={activePanel} height="auto" zIndex={60}>
       <div className="p-6">
         <p className="text-zinc-300 mb-6">{message}</p>
         <div className="flex gap-3 justify-end">

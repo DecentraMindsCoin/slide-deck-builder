@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import { Undo } from 'lucide-react';
+import { Undo, Plus, Type, List, MousePointerClick } from 'lucide-react';
 import Button from '@/components/ui/Button';
+import EmptyState from '@/components/ui/EmptyState';
 import { useSlideDeckStore } from '@/store/useSlideDeckStore';
 import { SLIDE_DEFAULTS } from '@/constants/slides';
 import FontStyleControls from './controls/FontStyleControls';
@@ -13,7 +14,25 @@ export default function EditTab() {
   const selectedElement = useSlideDeckStore((state) => state.selectedElement);
   const slideDeck = useSlideDeckStore((state) => state.slideDeck);
   const updateElementStyle = useSlideDeckStore((state) => state.updateElementStyle);
+  const updateTitleStyle = useSlideDeckStore((state) => state.updateTitleStyle);
+  const updateSlide = useSlideDeckStore((state) => state.updateSlide);
   const currentSlideIndex = useSlideDeckStore((state) => state.currentSlideIndex);
+  const [showAddMenu, setShowAddMenu] = useState(false);
+  const addMenuRef = useRef<HTMLDivElement>(null);
+
+  // Close popover when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (addMenuRef.current && !addMenuRef.current.contains(event.target as Node)) {
+        setShowAddMenu(false);
+      }
+    };
+
+    if (showAddMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [showAddMenu]);
 
   // Get the selected element's current style
   const getSelectedElementStyle = () => {
@@ -24,8 +43,27 @@ export default function EditTab() {
     // If slide is selected, return empty style object
     if (selectedElement.contentIndex === 'slide') return {};
     
+    // If title is selected, return title style
+    if (selectedElement.contentIndex === 'title') return slide.titleStyle || {};
+    
     const content = slide.content[selectedElement.contentIndex as number];
     return content?.style || {};
+  };
+
+  const handleAddParagraph = () => {
+    if (!slideDeck) return;
+    const slide = slideDeck.slides[currentSlideIndex];
+    const newContent = [...slide.content, { type: "paragraph" as const, text: "" }];
+    updateSlide(slide.id, slide.title, newContent);
+    setShowAddMenu(false);
+  };
+
+  const handleAddBullet = () => {
+    if (!slideDeck) return;
+    const slide = slideDeck.slides[currentSlideIndex];
+    const newContent = [...slide.content, { type: "bullet" as const, text: "" }];
+    updateSlide(slide.id, slide.title, newContent);
+    setShowAddMenu(false);
   };
 
   const currentStyle = getSelectedElementStyle();
@@ -90,7 +128,7 @@ export default function EditTab() {
       return;
     }
     
-    updateElementStyle(selectedElement.slideId, selectedElement.contentIndex as number, {
+    const style = {
       fontSize,
       fontFamily,
       fontWeight,
@@ -101,8 +139,15 @@ export default function EditTab() {
       textAlign,
       lineHeight,
       letterSpacing,
-    });
-  }, [selectedElement, fontSize, fontFamily, fontWeight, fontStyle, textDecoration, color, backgroundColor, textAlign, lineHeight, letterSpacing, updateElementStyle]);
+    };
+    
+    // Apply title style or element style
+    if (selectedElement.contentIndex === 'title') {
+      updateTitleStyle(selectedElement.slideId, style);
+    } else if (typeof selectedElement.contentIndex === 'number') {
+      updateElementStyle(selectedElement.slideId, selectedElement.contentIndex, style);
+    }
+  }, [fontSize, fontFamily, fontWeight, fontStyle, textDecoration, color, backgroundColor, textAlign, lineHeight, letterSpacing, selectedElement]);
 
   // Auto-apply slide background when it changes
   useEffect(() => {
@@ -111,48 +156,65 @@ export default function EditTab() {
     updateSlideBackground(selectedElement.slideId, slideBackgroundColor);
   }, [slideBackgroundColor]);
 
-  if (!selectedElement) {
-    return (
-      <div className="p-4 flex items-center justify-center h-full">
-        <div className="text-center text-zinc-500">
-          <p className="text-sm">Select an element or the slide background to edit</p>
+  return (
+    <>
+      {/* All Controls Header */}
+      <div className="p-4 pb-0">
+        <div className="flex items-center justify-between mb-4">
+          <div className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+            All Controls
+          </div>
+          <div className="relative" ref={addMenuRef}>
+            <Button
+              onClick={() => setShowAddMenu(!showAddMenu)}
+              variant="primary"
+              icon={<Plus className="w-3 h-3" />}
+              size="sm"
+              className="text-xs"
+            >
+              Add Element
+            </Button>
+            
+            {/* Add Element Popover */}
+            {showAddMenu && (
+              <div className="absolute top-full right-0 mt-2 w-40 bg-zinc-800 border border-zinc-700 rounded-lg shadow-xl z-50">
+                <button
+                  onClick={handleAddParagraph}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white hover:bg-zinc-700 transition-colors rounded-t-lg"
+                >
+                  <Type className="w-4 h-4" />
+                  Text
+                </button>
+                <button
+                  onClick={handleAddBullet}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white hover:bg-zinc-700 transition-colors rounded-b-lg"
+                >
+                  <List className="w-4 h-4" />
+                  Bullet
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    );
-  }
 
-  // If slide is selected, show slide-level controls
-  if (selectedElement.contentIndex === 'slide') {
-    return (
-      <>
+      {!selectedElement ? (
+        <EmptyState
+          icon={MousePointerClick}
+          heading="No Selection"
+          message="Select an element or the slide background to edit its properties"
+        />
+      ) : selectedElement.contentIndex === 'slide' ? (
+        // Slide-level controls
         <div className="flex-1 overflow-y-auto p-4 space-y-6 pb-20">
           <SlideBackgroundControls
             slideBackgroundColor={slideBackgroundColor}
             setSlideBackgroundColor={setSlideBackgroundColor}
           />
         </div>
-
-        {/* Fixed Footer with Undo Button */}
-        {styleHistory.length > 0 && (
-          <div className="absolute bottom-0 left-0 right-0 p-4 bg-zinc-900 border-t border-zinc-800">
-            <Button 
-              onClick={undoLastStyleChange}
-              variant="secondary"
-              icon={<Undo className="w-4 h-4" />}
-              fullWidth
-            >
-              Undo
-            </Button>
-          </div>
-        )}
-      </>
-    );
-  }
-
-  // Element-level controls
-  return (
-    <>
-      <div className="flex-1 overflow-y-auto p-4 space-y-6 pb-20">
+      ) : (
+        // Element-level controls
+        <div className="flex-1 overflow-y-auto p-4 space-y-6 pb-20">
         <FontStyleControls
           fontFamily={fontFamily}
           setFontFamily={setFontFamily}
@@ -184,7 +246,8 @@ export default function EditTab() {
           letterSpacing={letterSpacing}
           setLetterSpacing={setLetterSpacing}
         />
-      </div>
+        </div>
+      )}
 
       {/* Fixed Footer with Undo Button */}
       {styleHistory.length > 0 && (

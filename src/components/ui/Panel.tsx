@@ -1,7 +1,7 @@
 'use client';
 
 import { ReactNode } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { X } from 'lucide-react';
 import { PanelType } from '@/types';
 
 interface PanelProps {
@@ -29,21 +29,19 @@ export default function Panel({
 }: PanelProps) {
   if (!isOpen) return null;
 
-  const zIndex = panelType === 'editor' ? 'z-50' : 'z-20';
-  const closeIcon = panelType === 'editor' ? ChevronRight : ChevronLeft;
-  const CloseIcon = closeIcon;
+  const zIndex = panelType === 'editor' || panelType === 'viewer' ? 'z-50' : 'z-20';
 
   return (
     <div
       className={`fixed left-16 top-0 h-full ${widthClasses[width]} bg-zinc-900 border-r border-zinc-800 flex flex-col ${zIndex} transition-all duration-300`}
     >
-      {/* Toggle Button - Right Edge */}
+      {/* Universal Close Button - Top Right Corner */}
       <button
         onClick={onClose}
-        className="absolute -right-10 top-4 p-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-colors z-30"
-        title={`Close ${panelType === 'editor' ? 'Editor' : 'History'}`}
+        className="absolute top-4 right-4 p-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-colors z-10"
+        title="Close Panel"
       >
-        <CloseIcon className="w-4 h-4 text-zinc-400" />
+        <X className="w-4 h-4 text-zinc-400" />
       </button>
 
       {/* Optional Title */}

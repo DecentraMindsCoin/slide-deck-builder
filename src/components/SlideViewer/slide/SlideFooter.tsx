@@ -30,15 +30,6 @@ export default function SlideFooter({
           Previous
         </Button>
 
-        <div className="flex flex-col items-center gap-1">
-          <div className="text-white text-lg font-semibold">
-            {currentIndex + 1} of {totalSlides}
-          </div>
-          <div className="text-zinc-400 text-xs">
-            Use arrow keys to navigate
-          </div>
-        </div>
-
         <Button
           onClick={onNext}
           disabled={currentIndex === totalSlides - 1}

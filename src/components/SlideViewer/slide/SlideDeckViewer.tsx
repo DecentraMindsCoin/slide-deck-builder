@@ -7,14 +7,18 @@ import { SLIDE_DEFAULTS } from "@/constants/slides";
 import SlideHeader from "@/components/SlideViewer/slide/SlideHeader";
 import SlideTitle from "@/components/SlideViewer/slide/SlideTitle";
 import SlideContentItem from "@/components/SlideViewer/slide/SlideContentItem";
-import SlideContentEditor from "@/components/SlideViewer/SlideContentEditor";
 import SlideFooter from "@/components/SlideViewer/slide/SlideFooter";
+import SlideToolbar from "@/components/SlideViewer/slide/SlideToolbar";
 import type { Slide, SlideContent } from "@/types";
 
 export interface SlideViewerProps {
   deckTitle: string;
   slides: Slide[];
-  onUpdateSlide: (slideId: string, title: string, content: SlideContent[]) => void;
+  onUpdateSlide: (
+    slideId: string,
+    title: string,
+    content: SlideContent[],
+  ) => void;
   onReset: () => void;
   currentSlideIndex?: number;
   onSlideChange?: (index: number) => void;
@@ -31,18 +35,15 @@ export default function SlideViewer({
   const [internalIndex, setInternalIndex] = useState(0);
   const selectedElement = useSlideDeckStore((state) => state.selectedElement);
   const setSelectedElement = useSlideDeckStore(
-    (state) => state.setSelectedElement
+    (state) => state.setSelectedElement,
   );
-  const editableRefs = useRef<{ [key: number]: HTMLElement | null }>({});
+  const deleteSlide = useSlideDeckStore((state) => state.deleteSlide);
+  const editableRefs = useRef<Record<number | 'title', HTMLElement | null>>({} as Record<number | 'title', HTMLElement | null>);
 
   // Use external index if provided, otherwise use internal
   const currentIndex =
     currentSlideIndex !== undefined ? currentSlideIndex : internalIndex;
   const setCurrentIndex = onSlideChange || setInternalIndex;
-  const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [isEditingContent, setIsEditingContent] = useState(false);
-  const [editedTitle, setEditedTitle] = useState("");
-  const [editedContent, setEditedContent] = useState<SlideContent[]>([]);
 
   const currentSlide = slides[currentIndex];
 
@@ -51,7 +52,7 @@ export default function SlideViewer({
     if (
       selectedElement &&
       selectedElement.contentIndex !== "slide" &&
-      typeof selectedElement.contentIndex === "number"
+      (typeof selectedElement.contentIndex === "number" || selectedElement.contentIndex === 'title')
     ) {
       const element = editableRefs.current[selectedElement.contentIndex];
       if (element) {
@@ -71,9 +72,16 @@ export default function SlideViewer({
   const handleTextEdit = (index: number, element: HTMLElement) => {
     const newText = element.textContent || "";
     const updatedContent = currentSlide.content.map((item, idx) =>
-      idx === index ? { ...item, text: newText } : item
+      idx === index ? { ...item, text: newText } : item,
     );
     onUpdateSlide(currentSlide.id, currentSlide.title, updatedContent);
+  };
+
+  const handleTitleEdit = (element: HTMLElement) => {
+    const newTitle = element.textContent || "";
+    if (newTitle.trim()) {
+      onUpdateSlide(currentSlide.id, newTitle.trim(), currentSlide.content);
+    }
   };
 
   const handleExportToPPTX = async () => {
@@ -87,18 +95,19 @@ export default function SlideViewer({
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (isEditingTitle || isEditingContent) return;
-
       if (e.key === "ArrowLeft" && currentIndex > 0) {
         setCurrentIndex(currentIndex - 1);
       } else if (e.key === "ArrowRight" && currentIndex < slides.length - 1) {
         setCurrentIndex(currentIndex + 1);
+      } else if ((e.key === "Delete" || e.key === "Backspace") && selectedElement && typeof selectedElement.contentIndex === 'number') {
+        e.preventDefault();
+        handleDeleteContentItem();
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [currentIndex, slides.length, isEditingTitle, isEditingContent]);
+  }, [currentIndex, slides.length, selectedElement]);
 
   const handleNext = () => {
     if (currentIndex < slides.length - 1) {
@@ -119,59 +128,53 @@ export default function SlideViewer({
     }
   }, [currentSlideIndex]);
 
-  const startEditingTitle = () => {
-    setEditedTitle(currentSlide.title);
-    setIsEditingTitle(true);
+
+  const handleAddParagraph = () => {
+    const newContent = [...currentSlide.content, { type: "paragraph" as const, text: "" }];
+    onUpdateSlide(currentSlide.id, currentSlide.title, newContent);
   };
 
-  const saveTitle = () => {
-    if (editedTitle.trim()) {
-      onUpdateSlide(currentSlide.id, editedTitle.trim(), currentSlide.content);
-      setIsEditingTitle(false);
+  const handleAddBullet = () => {
+    const newContent = [...currentSlide.content, { type: "bullet" as const, text: "" }];
+    onUpdateSlide(currentSlide.id, currentSlide.title, newContent);
+  };
+
+  const handleDeleteContentItem = () => {
+    if (selectedElement && typeof selectedElement.contentIndex === 'number') {
+      const newContent = currentSlide.content.filter((_, idx) => idx !== selectedElement.contentIndex);
+      onUpdateSlide(currentSlide.id, currentSlide.title, newContent);
+      setSelectedElement(null);
     }
   };
 
-  const cancelTitleEdit = () => {
-    setIsEditingTitle(false);
-    setEditedTitle("");
-  };
-
-  const startEditingContent = () => {
-    setEditedContent([...currentSlide.content]);
-    setIsEditingContent(true);
-  };
-
-  const saveContent = () => {
-    onUpdateSlide(currentSlide.id, currentSlide.title, editedContent);
-    setIsEditingContent(false);
-  };
-
-  const cancelContentEdit = () => {
-    setIsEditingContent(false);
-    setEditedContent([]);
-  };
-
-  const updateContentItem = (index: number, text: string) => {
-    const newContent = [...editedContent];
-    newContent[index] = { ...newContent[index], text };
-    setEditedContent(newContent);
-  };
-
-  const addContentItem = (type: "paragraph" | "bullet") => {
-    setEditedContent([...editedContent, { type, text: "" }]);
-  };
-
-  const removeContentItem = (index: number) => {
-    setEditedContent(editedContent.filter((_, i) => i !== index));
+  const handleDeleteSlide = () => {
+    if (selectedElement && selectedElement.contentIndex === 'slide' && slides.length > 1) {
+      deleteSlide(currentSlide.id);
+    }
   };
 
   return (
     <div className="h-full flex flex-col">
-      <SlideHeader deckTitle={deckTitle} onExport={handleExportToPPTX} />
+      <SlideHeader deckTitle={deckTitle} />
+
+      {/* Slide Toolbar */}
+      <SlideToolbar
+        onAddParagraph={handleAddParagraph}
+        onAddBullet={handleAddBullet}
+        onDelete={
+          selectedElement && typeof selectedElement.contentIndex === 'number' 
+            ? handleDeleteContentItem 
+            : selectedElement && selectedElement.contentIndex === 'slide' && slides.length > 1
+            ? handleDeleteSlide
+            : undefined
+        }
+        onExport={handleExportToPPTX}
+        selectedElement={selectedElement}
+      />
 
       {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto p-8">
-        <div className="w-full max-w-5xl mx-auto h-full flex items-center">
+        <div className="w-full max-w-5xl mx-auto h-full flex items-center flex-col">
           <div
             className={`border border-zinc-800 shadow-2xl p-12 w-full min-h-[500px] flex flex-col cursor-pointer transition-all ${
               selectedElement?.contentIndex === "slide" &&
@@ -194,77 +197,57 @@ export default function SlideViewer({
           >
             <SlideTitle
               title={currentSlide.title}
-              isEditing={isEditingTitle}
-              editedTitle={editedTitle}
-              onStartEdit={startEditingTitle}
-              onSave={saveTitle}
-              onCancel={cancelTitleEdit}
-              onChange={setEditedTitle}
+              titleStyle={currentSlide.titleStyle}
+              isSelected={selectedElement?.slideId === currentSlide.id && selectedElement?.contentIndex === 'title'}
+              onSelect={() => setSelectedElement({ slideId: currentSlide.id, contentIndex: 'title' })}
+              onTextEdit={handleTitleEdit}
+              editableRef={(el) => {
+                if (el) editableRefs.current['title'] = el;
+              }}
             />
 
             <div className="flex-1">
-              {isEditingContent ? (
-                <SlideContentEditor
-                  isEditing={isEditingContent}
-                  editedContent={editedContent}
-                  currentContent={currentSlide.content}
-                  onStartEdit={startEditingContent}
-                  onSave={saveContent}
-                  onCancel={cancelContentEdit}
-                  onUpdateItem={updateContentItem}
-                  onRemoveItem={removeContentItem}
-                  onAddItem={addContentItem}
-                />
-              ) : (
-                <div
-                  className="space-y-4"
-                  onClick={(e) => {
-                    if (e.target === e.currentTarget) {
-                      setSelectedElement({
-                        slideId: currentSlide.id,
-                        contentIndex: "slide",
-                      });
-                    }
-                  }}
-                >
-                  {currentSlide.content.map((item, index) => {
-                    const isSelected =
-                      selectedElement?.slideId === currentSlide.id &&
-                      selectedElement?.contentIndex === index;
+              <div
+                className="space-y-4"
+                onClick={(e) => {
+                  if (e.target === e.currentTarget) {
+                    setSelectedElement({
+                      slideId: currentSlide.id,
+                      contentIndex: "slide",
+                    });
+                  }
+                }}
+              >
+                {currentSlide.content.map((item, index) => {
+                  const isSelected =
+                    selectedElement?.slideId === currentSlide.id &&
+                    selectedElement?.contentIndex === index;
 
-                    return (
-                      <SlideContentItem
-                        key={index}
-                        item={item}
-                        index={index}
-                        isSelected={isSelected}
-                        onSelect={() =>
-                          setSelectedElement({
-                            slideId: currentSlide.id,
-                            contentIndex: index,
-                          })
-                        }
-                        onTextEdit={handleTextEdit}
-                        editableRef={(el) => {
-                          if (el) editableRefs.current[index] = el;
-                        }}
-                      />
-                    );
-                  })}
-                  <SlideContentEditor
-                    isEditing={false}
-                    editedContent={editedContent}
-                    currentContent={currentSlide.content}
-                    onStartEdit={startEditingContent}
-                    onSave={saveContent}
-                    onCancel={cancelContentEdit}
-                    onUpdateItem={updateContentItem}
-                    onRemoveItem={removeContentItem}
-                    onAddItem={addContentItem}
-                  />
-                </div>
-              )}
+                  return (
+                    <SlideContentItem
+                      key={index}
+                      item={item}
+                      index={index}
+                      isSelected={isSelected}
+                      onSelect={() =>
+                        setSelectedElement({
+                          slideId: currentSlide.id,
+                          contentIndex: index,
+                        })
+                      }
+                      onTextEdit={handleTextEdit}
+                      editableRef={(el) => {
+                        if (el) editableRefs.current[index] = el;
+                      }}
+                    />
+                  );
+                })}
+              </div>
             </div>
+          </div>
+          {/* Slide Counter */}
+          <div className="text-white text-sm font-medium text-center pt-2">
+            {currentIndex + 1} of {slides.length}
           </div>
         </div>
       </div>

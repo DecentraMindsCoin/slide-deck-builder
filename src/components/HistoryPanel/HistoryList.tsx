@@ -1,4 +1,5 @@
-import { FileText, Trash2 } from 'lucide-react';
+import { FileText, Trash2, FolderOpen } from 'lucide-react';
+import EmptyState from '@/components/ui/EmptyState';
 import { formatRelativeTime, truncate } from '@/lib/utils/utils';
 import type { SlideDeck } from '@/types';
 
@@ -24,11 +25,11 @@ export default function HistoryList({
 }: HistoryListProps) {
   if (history.length === 0) {
     return (
-      <div className="flex-1 overflow-y-auto space-y-2 p-4">
-        <div className="text-zinc-500 text-sm text-center py-8">
-          No decks generated yet
-        </div>
-      </div>
+      <EmptyState
+        icon={FolderOpen}
+        heading="No Decks Yet"
+        message="Generate your first slide deck to see it appear here"
+      />
     );
   }
 

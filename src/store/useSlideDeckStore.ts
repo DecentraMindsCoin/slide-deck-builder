@@ -85,6 +85,39 @@ export const useSlideDeckStore = create<SlideDeckState>()(
             'updateElementStyle'
           ),
         
+        updateTitleStyle: (slideId, style) =>
+          set(
+            (state) => {
+              if (!state.slideDeck) return state;
+
+              const updatedSlides = state.slideDeck.slides.map((slide) => {
+                if (slide.id !== slideId) return slide;
+                return { ...slide, titleStyle: { ...slide.titleStyle, ...style } };
+              });
+
+              const updatedDeck = {
+                ...state.slideDeck,
+                slides: updatedSlides,
+              };
+
+              // Also update in history if this is a saved deck
+              const updatedHistory = state.currentDeckId
+                ? state.history.map((item) =>
+                    item.id === state.currentDeckId
+                      ? { ...item, deck: updatedDeck }
+                      : item
+                  )
+                : state.history;
+
+              return {
+                slideDeck: updatedDeck,
+                history: updatedHistory,
+              };
+            },
+            false,
+            'updateTitleStyle'
+          ),
+        
         updateSlideBackground: (slideId, backgroundColor) =>
           set(
             (state) => {
@@ -266,6 +299,81 @@ export const useSlideDeckStore = create<SlideDeckState>()(
             },
             false,
             'updateSlide'
+          ),
+      
+        deleteSlide: (slideId) =>
+          set(
+            (state) => {
+              if (!state.slideDeck || state.slideDeck.slides.length <= 1) return state; // Prevent deleting last slide
+
+              const updatedSlides = state.slideDeck.slides.filter((slide) => slide.id !== slideId);
+              const deletedSlideIndex = state.slideDeck.slides.findIndex((slide) => slide.id === slideId);
+
+              const updatedDeck = {
+                ...state.slideDeck,
+                slides: updatedSlides,
+              };
+
+              // Also update in history if this is a saved deck
+              const updatedHistory = state.currentDeckId
+                ? state.history.map((item) =>
+                    item.id === state.currentDeckId
+                      ? { ...item, deck: updatedDeck }
+                      : item
+                  )
+                : state.history;
+
+              // Adjust current slide index if needed
+              const newIndex = deletedSlideIndex >= updatedSlides.length 
+                ? updatedSlides.length - 1 
+                : state.currentSlideIndex;
+
+              return {
+                slideDeck: updatedDeck,
+                history: updatedHistory,
+                currentSlideIndex: newIndex,
+                selectedElement: null, // Clear selection
+              };
+            },
+            false,
+            'deleteSlide'
+          ),
+      
+        addSlide: () =>
+          set(
+            (state) => {
+              if (!state.slideDeck) return state;
+
+              const newSlide = {
+                id: `slide-${Date.now()}`,
+                title: 'New Slide',
+                content: [],
+              };
+
+              const updatedSlides = [...state.slideDeck.slides, newSlide];
+
+              const updatedDeck = {
+                ...state.slideDeck,
+                slides: updatedSlides,
+              };
+
+              // Also update in history if this is a saved deck
+              const updatedHistory = state.currentDeckId
+                ? state.history.map((item) =>
+                    item.id === state.currentDeckId
+                      ? { ...item, deck: updatedDeck }
+                      : item
+                  )
+                : state.history;
+
+              return {
+                slideDeck: updatedDeck,
+                history: updatedHistory,
+                currentSlideIndex: updatedSlides.length - 1, // Navigate to new slide
+              };
+            },
+            false,
+            'addSlide'
           ),
       
         reset: () =>

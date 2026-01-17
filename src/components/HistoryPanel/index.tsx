@@ -1,7 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import { History, Plus } from 'lucide-react';
 import Panel from '@/components/ui/Panel';
+import Button from '@/components/ui/Button';
 import ConfirmModal from './ConfirmDeleteModal';
 import HistoryList from './HistoryList';
 import { useSlideDeckStore } from '@/store/useSlideDeckStore';
@@ -16,6 +18,7 @@ export default function HistoryPanel() {
   const currentDeckId = useSlideDeckStore((state) => state.currentDeckId);
   const loadDeckFromHistory = useSlideDeckStore((state) => state.loadDeckFromHistory);
   const deleteDeckFromHistory = useSlideDeckStore((state) => state.deleteDeckFromHistory);
+  const reset = useSlideDeckStore((state) => state.reset);
 
   const handleDeleteClick = (e: React.MouseEvent, id: string, title: string) => {
     e.stopPropagation();
@@ -30,21 +33,48 @@ export default function HistoryPanel() {
   };
 
   return (
-    <Panel
-      panelType="history"
-      isOpen={isOpen}
-      onClose={() => togglePanel('history')}
-      title="Generation History"
-      width="md"
-    >
-      <HistoryList
-        history={history}
-        currentDeckId={currentDeckId}
-        onLoadDeck={loadDeckFromHistory}
-        onDeleteClick={handleDeleteClick}
-      />
+    <>
+      <Panel
+        panelType="history"
+        isOpen={isOpen}
+        onClose={() => togglePanel('history')}
+        width="md"
+      >
+        {/* Header */}
+        <div className="border-b border-zinc-800 shrink-0 p-4">
+          <div className="flex items-center gap-2">
+            <History className="w-5 h-5 text-blue-500" />
+            <h2 className="text-lg font-semibold text-white">Generation History</h2>
+          </div>
+        </div>
 
-      {/* Delete Confirmation Modal */}
+        {/* All Decks Section */}
+        <div className="p-4 pb-0">
+          <div className="flex items-center justify-between mb-4">
+            <div className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+              All Decks ({history.length})
+            </div>
+            <Button
+              onClick={reset}
+              variant="primary"
+              icon={<Plus className="w-3 h-3" />}
+              size="sm"
+              className="text-xs"
+            >
+              New Deck
+            </Button>
+          </div>
+        </div>
+
+        <HistoryList
+          history={history}
+          currentDeckId={currentDeckId}
+          onLoadDeck={loadDeckFromHistory}
+          onDeleteClick={handleDeleteClick}
+        />
+      </Panel>
+
+      {/* Delete Confirmation Modal - Rendered outside Panel for correct z-index stacking */}
       <ConfirmModal
         isOpen={deleteConfirm !== null}
         onClose={() => setDeleteConfirm(null)}
@@ -56,6 +86,6 @@ export default function HistoryPanel() {
         variant="danger"
         activePanel={activePanel}
       />
-    </Panel>
+    </>
   );
 }

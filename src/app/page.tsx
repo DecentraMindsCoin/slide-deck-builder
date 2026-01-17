@@ -3,10 +3,12 @@
 import { useState } from 'react';
 import Sidebar from '@/components/Sidebar';
 import HistoryPanel from '@/components/HistoryPanel';
+import ViewerPanel from '@/components/ViewerPanel';
 import EditorPanel from '@/components/EditorPanel';
 import HomeLayout from '@/components/HomeLayout';
 import SlideDeckModal from '@/components/SlideViewer';
 import ErrorDisplay from '@/components/ErrorDisplay';
+import GeneratedSuccess from '@/components/GeneratedSuccess';
 import { generateSlides } from '@/services/api';
 import { normalizeSlides } from '@/lib/slides/normalizeSlides';
 import { useSlideDeckStore } from '@/store/useSlideDeckStore';
@@ -42,7 +44,7 @@ export default function Home() {
         const normalizedDeck = normalizeSlides(response.data);
         setSlideDeck(normalizedDeck);
         addToHistory(normalizedDeck, prompt);
-        setAppState('viewing');
+        setAppState('generated');
       } else {
         throw new Error('Failed to generate slides');
       }
@@ -65,6 +67,10 @@ export default function Home() {
     setError('');
   };
 
+  const handleViewDeck = () => {
+    setAppState('viewing');
+  };
+
   return (
     <>
       {/* Sidebar */}
@@ -72,6 +78,9 @@ export default function Home() {
 
       {/* History Panel */}
       <HistoryPanel />
+
+      {/* Viewer Panel */}
+      <ViewerPanel />
 
       {/* Editor Panel */}
       <EditorPanel />
@@ -93,6 +102,14 @@ export default function Home() {
           <div className="fixed top-4 right-4 z-40">
             <ErrorDisplay error={error} onRetry={handleRetry} />
           </div>
+        )}
+
+        {/* Generated Success Message */}
+        {appState === 'generated' && slideDeck && (
+          <GeneratedSuccess
+            onView={handleViewDeck}
+            slideCount={slideDeck.slides.length}
+          />
         )}
 
         {/* Slide Deck Modal */}

@@ -1,3 +1,7 @@
+import { Plus, Trash2, Presentation } from 'lucide-react';
+import { useSlideDeckStore } from '@/store/useSlideDeckStore';
+import Button from '@/components/ui/Button';
+import EmptyState from '@/components/ui/EmptyState';
 import type { Slide } from '@/types';
 
 interface PreviewTabProps {
@@ -7,16 +11,68 @@ interface PreviewTabProps {
 }
 
 export default function PreviewTab({ slides, currentSlideIndex, onSlideSelect }: PreviewTabProps) {
+  const addSlide = useSlideDeckStore((state) => state.addSlide);
+  const deleteSlide = useSlideDeckStore((state) => state.deleteSlide);
+
+  const handleDeleteSlide = (e: React.MouseEvent, slideId: string) => {
+    e.stopPropagation();
+    if (slides.length > 1) {
+      deleteSlide(slideId);
+    }
+  };
+
+  if (slides.length === 0) {
+    return (
+      <>
+        <div className="p-4 pb-0">
+          <div className="flex items-center justify-between mb-4">
+            <div className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+              All Slides (0)
+            </div>
+            <Button
+              onClick={addSlide}
+              variant="primary"
+              icon={<Plus className="w-3 h-3" />}
+              size="sm"
+              className="text-xs"
+            >
+              Add Slide
+            </Button>
+          </div>
+        </div>
+        <EmptyState
+          icon={Presentation}
+          heading="No Slides"
+          message="Click 'Add Slide' to create your first slide"
+        />
+      </>
+    );
+  }
+
   return (
-    <div className="p-4 space-y-3">
-      <div className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-4">
-        All Slides ({slides.length})
+    <div className="space-y-3">
+      <div className="p-4 pb-0">
+        <div className="flex items-center justify-between mb-4">
+          <div className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+            All Slides ({slides.length})
+          </div>
+          <Button
+            onClick={addSlide}
+            variant="primary"
+            icon={<Plus className="w-3 h-3" />}
+            size="sm"
+            className="text-xs"
+          >
+            Add Slide
+          </Button>
+        </div>
       </div>
+      <div className="px-4 space-y-3">
       {slides.map((slide, index) => (
-        <button
+        <div
           key={slide.id}
           onClick={() => onSlideSelect(index)}
-          className={`w-full text-left rounded-lg border transition-all group ${
+          className={`w-full text-left rounded-lg border transition-all group relative cursor-pointer ${
             index === currentSlideIndex
               ? 'bg-blue-600/20 border-blue-500'
               : 'bg-zinc-800/50 border-zinc-700 hover:border-zinc-600 hover:bg-zinc-800'
@@ -41,9 +97,21 @@ export default function PreviewTab({ slides, currentSlideIndex, onSlideSelect }:
                 {slide.content.map(c => c.text).join(' • ')}
               </div>
             </div>
+
+            {/* Delete Button - Shows on hover */}
+            {slides.length > 1 && (
+              <button
+                onClick={(e) => handleDeleteSlide(e, slide.id)}
+                className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-600/20 rounded transition-all shrink-0"
+                title="Delete Slide"
+              >
+                <Trash2 className="w-4 h-4 text-red-400" />
+              </button>
+            )}
           </div>
-        </button>
+        </div>
       ))}
+      </div>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { Plus, Sparkles, History, Settings } from "lucide-react";
+import { Plus, Sparkles, History, Settings, Eye } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { useSlideDeckStore } from "@/store/useSlideDeckStore";
 import { useUIStore } from "@/store/useUIStore";
@@ -55,6 +55,23 @@ export default function Sidebar() {
           History
         </span>
       </Button>
+
+      {/* Viewer Panel Toggle - Only visible when viewing slides */}
+      {appState === "viewing" && (
+        <Button
+          onClick={() => togglePanel("viewer")}
+          variant="icon"
+          icon={<Eye className="w-5 h-5" />}
+          className={`group relative ${
+            activePanel === "viewer" ? "bg-zinc-800 text-white" : ""
+          }`}
+          title="Viewer"
+        >
+          <span className="absolute left-full ml-2 px-2 py-1 bg-zinc-950 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+            Viewer
+          </span>
+        </Button>
+      )}
 
       {/* Editor Panel Toggle - Only visible when viewing slides */}
       {appState === "viewing" && (
