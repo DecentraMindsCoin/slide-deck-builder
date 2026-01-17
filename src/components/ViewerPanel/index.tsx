@@ -4,7 +4,7 @@ import { Eye } from 'lucide-react';
 import Panel from '@/components/ui/Panel';
 import { useUIStore } from '@/store/useUIStore';
 import { useSlideDeckStore } from '@/store/useSlideDeckStore';
-import PreviewTab from '@/components/EditorPanel/PreviewTab';
+import PreviewTab from '@/components/ViewerPanel/PreviewTab';
 
 export default function ViewerPanel() {
   const activePanel = useUIStore((state) => state.activePanel);
