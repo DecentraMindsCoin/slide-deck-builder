@@ -59,17 +59,43 @@ export async function exportToPPTX(deck: SlideDeck): Promise<void> {
       pptxSlide.background = { color: bgColor };
     }
 
-    // Add slide title (black text for white background)
-    pptxSlide.addText(slide.title, {
+    // Add slide title with custom styles
+    const titleStyle = slide.titleStyle || {};
+    const titleOptions: any = {
       x: 0.5,
       y: 0.5,
       w: 9,
       h: 0.75,
-      fontSize: SLIDE_DEFAULTS.TITLE_FONT_SIZE,
-      bold: true,
-      color: formatColor(SLIDE_DEFAULTS.TITLE_COLOR),
-      align: 'left',
-    });
+      fontSize: pxToPoints(titleStyle.fontSize) || SLIDE_DEFAULTS.TITLE_FONT_SIZE,
+      fontFace: titleStyle.fontFamily || SLIDE_DEFAULTS.FONT_FAMILY,
+      color: formatColor(titleStyle.color) || formatColor(SLIDE_DEFAULTS.TITLE_COLOR),
+      align: titleStyle.textAlign || 'left',
+    };
+
+    // Apply title text styling
+    if (titleStyle.fontWeight === 'bold' || !titleStyle.fontWeight) {
+      titleOptions.bold = true;
+    }
+    if (titleStyle.fontStyle === 'italic') {
+      titleOptions.italic = true;
+    }
+    if (titleStyle.textDecoration === 'underline') {
+      titleOptions.underline = true;
+    }
+    if (titleStyle.backgroundColor && titleStyle.backgroundColor !== 'transparent') {
+      const bgColor = formatColor(titleStyle.backgroundColor);
+      if (bgColor) {
+        titleOptions.fill = { color: bgColor };
+      }
+    }
+    if (titleStyle.lineHeight) {
+      titleOptions.lineSpacing = Math.round(titleStyle.lineHeight * 100);
+    }
+    if (titleStyle.letterSpacing) {
+      titleOptions.charSpacing = pxToInches(titleStyle.letterSpacing);
+    }
+
+    pptxSlide.addText(slide.title, titleOptions);
 
     // Add content items
     let yPosition = 1.5; // Start below title
